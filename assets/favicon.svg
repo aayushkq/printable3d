@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none">
+  <rect width="64" height="64" rx="14" fill="#0F172A"/>
+  <!-- Isometric 3D Layered Cube representing 3D printing layers -->
+  <path d="M32 12L50 22.4V41.6L32 52L14 41.6V22.4L32 12Z" stroke="#F8FAFC" stroke-width="2.5" stroke-linejoin="round"/>
+  <!-- Layer lines -->
+  <path d="M14 28.8L32 39.2L50 28.8" stroke="#38BDF8" stroke-width="2" stroke-linejoin="round"/>
+  <path d="M14 35.2L32 45.6L50 35.2" stroke="#38BDF8" stroke-width="2" stroke-linejoin="round"/>
+  <!-- Top facets -->
+  <path d="M32 12L50 22.4L32 32.8L14 22.4L32 12Z" fill="#1E293B" stroke="#F8FAFC" stroke-width="2"/>
+  <!-- Center vertical division -->
+  <path d="M32 32.8V52" stroke="#F8FAFC" stroke-width="2.5"/>
+  <!-- Nozzle point highlight -->
+  <circle cx="32" cy="12" r="2.5" fill="#F97316"/>
+</svg>

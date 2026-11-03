@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Product Details | Printable3D</title>
+  <meta name="description" content="View product specifications, materials, available colors, and order directly on WhatsApp. Precision 3D-printed goods by Printable3D." />
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/svg+xml" href="assets/favicon.svg" />
+
+  <!-- Stylesheet -->
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+
+  <!-- Top Announcement Bar -->
+  <div class="announcement-bar">
+    <div class="container">
+      <span>🚚 Free Shipping across India on orders above ₹999</span>
+      <span style="opacity: 0.6; margin: 0 0.5rem;">|</span>
+      <span>Direct WhatsApp Orders & Instant Support</span>
+      <a href="shop.html">&larr; Back to Catalogue</a>
+    </div>
+  </div>
+
+  <!-- Header -->
+  <header class="site-header">
+    <div class="container">
+      <div class="header-inner">
+        <!-- Brand Logo -->
+        <a href="index.html" class="brand-link" aria-label="Printable3D Home">
+          <div class="brand-icon-box">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
+              <polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline>
+              <line x1="12" y1="22.08" x2="12" y2="12"></line>
+            </svg>
+          </div>
+          <div class="brand-text-wrap">
+            <span class="brand-title">Printable<span>3D</span></span>
+            <span class="brand-sub">Layered Essentials</span>
+          </div>
+        </a>
+
+        <!-- Desktop Navigation -->
+        <nav class="nav-links" aria-label="Main Navigation">
+          <a href="index.html" class="nav-link">Home</a>
+          <a href="shop.html" class="nav-link active">Shop</a>
+          <a href="about.html" class="nav-link">About Us</a>
+          <a href="contact.html" class="nav-link">Contact</a>
+        </nav>
+
+        <!-- Header Actions -->
+        <div class="header-actions">
+          <a href="#" class="btn-header-whatsapp js-whatsapp-direct" aria-label="Chat on WhatsApp">
+            <svg viewBox="0 0 24 24"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg>
+            <span>WhatsApp</span>
+          </a>
+          <button type="button" class="btn-mobile-toggle" id="mobileToggle" aria-label="Open Navigation Menu">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="3" y1="12" x2="21" y2="12"></line>
+              <line x1="3" y1="6" x2="21" y2="6"></line>
+              <line x1="3" y1="18" x2="21" y2="18"></line>
+            </svg>
+          </button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Mobile Drawer -->
+  <div class="mobile-nav-backdrop" id="mobileBackdrop"></div>
+  <aside class="mobile-nav-drawer" id="mobileDrawer">
+    <div class="drawer-header">
+      <div class="brand-link">
+        <div class="brand-icon-box">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
+          </svg>
+        </div>
+        <span class="brand-title">Printable<span>3D</span></span>
+      </div>
+      <button type="button" class="btn-drawer-close" id="drawerClose" aria-label="Close Navigation">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="18" y1="6" x2="6" y2="18"></line>
+          <line x1="6" y1="6" x2="18" y2="18"></line>
+        </svg>
+      </button>
+    </div>
+    <nav class="drawer-links">
+      <a href="index.html" class="drawer-link">Home</a>
+      <a href="shop.html" class="drawer-link">Shop Catalogue</a>
+      <a href="about.html" class="drawer-link">About Us</a>
+      <a href="contact.html" class="drawer-link">Contact</a>
+    </nav>
+    <div class="drawer-footer">
+      <a href="#" class="btn btn-whatsapp btn-block js-whatsapp-direct">
+        <svg viewBox="0 0 24 24"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg>
+        <span>Chat on WhatsApp</span>
+      </a>
+    </div>
+  </aside>
+
+  <!-- Product Detail Section -->
+  <main class="product-detail-section">
+    <div class="container">
+      <!-- Breadcrumbs -->
+      <nav class="breadcrumbs" aria-label="Breadcrumb">
+        <a href="index.html">Home</a>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+        <a href="shop.html">Shop</a>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+        <a href="shop.html" id="detailBreadcrumbCat">Category</a>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+        <span id="detailBreadcrumbTitle" style="color: var(--text-main); font-weight: 600;">Product Name</span>
+      </nav>
+
+      <!-- Main Product Grid: 2 columns on desktop -->
+      <div class="product-detail-grid">
+        <!-- Left: Image Gallery -->
+        <div class="detail-gallery">
+          <div class="detail-main-image-wrap">
+            <img id="detailMainImage" src="" alt="Product image" />
+          </div>
+          <!-- Thumbnails -->
+          <div class="detail-thumbnails" id="detailThumbnails">
+            <!-- Populated via js/product-detail.js -->
+          </div>
+        </div>
+
+        <!-- Right: Information & Ordering -->
+        <div class="detail-info">
+          <div class="detail-header-block">
+            <div id="detailBadgeContainer"></div>
+            <h1 class="detail-title" id="detailTitle">Product Name</h1>
+
+            <div class="product-rating">
+              <span class="rating-stars">
+                <svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+              </span>
+              <span id="detailRatingText" style="font-weight: 600;">4.9 (40+ reviews)</span>
+            </div>
+
+            <div class="detail-price-box">
+              <span class="detail-price" id="detailPrice">₹0</span>
+              <span class="detail-original-price" id="detailOriginalPrice">₹0</span>
+              <span class="detail-tax-notice">● In Stock & Ready to Print</span>
+            </div>
+          </div>
+
+          <!-- Product Description -->
+          <div>
+            <h3 style="font-size: 0.9375rem; font-weight: 700; margin-bottom: 0.5rem;">About This 3D Print</h3>
+            <p id="detailFullDesc" style="font-size: 0.9375rem; line-height: 1.65; color: var(--text-secondary);"></p>
+          </div>
+
+          <!-- Available Colours (Interactive Swatches) -->
+          <div class="swatch-group">
+            <div class="swatch-label">
+              <span>Select Colour:</span>
+              <span class="selected-color-name" id="detailSelectedColorName">Standard</span>
+            </div>
+            <div class="swatches-list" id="detailSwatches">
+              <!-- Swatches populated via js/product-detail.js -->
+            </div>
+          </div>
+
+          <!-- Quantity & WhatsApp CTA Box -->
+          <div class="order-action-box">
+            <div class="quantity-row">
+              <span class="quantity-label">Quantity:</span>
+              <div class="quantity-control">
+                <button type="button" class="btn-qty" id="btnQtyMinus" aria-label="Decrease quantity">&minus;</button>
+                <span class="qty-display" id="detailQtyDisplay">1</span>
+                <button type="button" class="btn-qty" id="btnQtyPlus" aria-label="Increase quantity">&#43;</button>
+              </div>
+            </div>
+
+            <!-- WhatsApp Buy Now Button with Pre-filled message -->
+            <a href="#" id="detailWhatsAppBtn" target="_blank" rel="noopener noreferrer" class="btn-whatsapp-order">
+              <svg viewBox="0 0 24 24"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg>
+              <span>Buy Now via WhatsApp</span>
+            </a>
+
+            <div class="order-guarantee-note">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+              <span>Instant order confirmation • Direct communication with makers</span>
+            </div>
+          </div>
+
+          <!-- Product Specifications Table -->
+          <div class="specs-card">
+            <div class="specs-title">Technical Specifications</div>
+            <table class="specs-table">
+              <tbody id="detailSpecsBody">
+                <!-- Populated dynamically via js/product-detail.js -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Related Products Section -->
+      <section style="margin-top: 5rem; padding-top: 3rem; border-top: 1px solid var(--border-light);">
+        <div class="section-header-row">
+          <div>
+            <span class="section-tag">You May Also Like</span>
+            <h2 class="section-title">Related 3D Printed Creations</h2>
+          </div>
+          <a href="shop.html" class="btn btn-secondary">View All &rarr;</a>
+        </div>
+        <div class="products-grid" id="relatedProductsGrid">
+          <!-- Populated dynamically -->
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <!-- Site Footer -->
+  <footer class="site-footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-brand-col">
+          <div class="brand-link">
+            <div class="brand-icon-box" style="background-color: rgba(255, 255, 255, 0.1);">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
+              </svg>
+            </div>
+            <span class="footer-brand-title">Printable<span>3D</span></span>
+          </div>
+          <p class="footer-desc">
+            Modern, precision 3D-printed goods for minimalist homes and productive workspaces. Direct WhatsApp ordering across India.
+          </p>
+          <div style="font-size: 0.8125rem; color: #64748B;">
+            Domain: <code style="color: #94A3B8;">printable3d.store</code>
+          </div>
+        </div>
+
+        <div>
+          <h4 class="footer-col-title">Navigation</h4>
+          <ul class="footer-links">
+            <li><a href="index.html">Home</a></li>
+            <li><a href="shop.html">Shop Catalogue</a></li>
+            <li><a href="about.html">About Us</a></li>
+            <li><a href="contact.html">Contact Us</a></li>
+          </ul>
+        </div>
+
+        <div>
+          <h4 class="footer-col-title">Collections</h4>
+          <ul class="footer-links">
+            <li><a href="shop.html?category=lamps">Ambient Moon Lamps</a></li>
+            <li><a href="product.html?id=lunar-moon-lamp">Lunar Wave Lamp</a></li>
+            <li><a href="contact.html">Custom 3D Printing</a></li>
+            <li><a href="shop.html">Browse Catalogue</a></li>
+          </ul>
+        </div>
+
+        <div>
+          <h4 class="footer-col-title">Connect</h4>
+          <div class="footer-contact-item">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+            <a href="#" class="js-whatsapp-direct"><span class="js-config-phone">+91 88252 47784</span></a>
+          </div>
+          <div class="footer-contact-item">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+            <a href="mailto:printable3d.store@gmail.com" class="js-config-email">printable3d.store@gmail.com</a>
+          </div>
+          <div class="footer-contact-item">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
+            <a href="https://instagram.com/printable3d.store" target="_blank" rel="noopener noreferrer" class="js-config-insta">@printable3d.store</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="footer-bottom">
+        <div>&copy; <span id="copyrightYear">2026</span> Printable3D. Direct WhatsApp Ordering.</div>
+        <div>All products 3D-printed with eco-friendly biopolymer in India.</div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Floating WhatsApp Button -->
+  <a href="#" class="floating-whatsapp-btn js-whatsapp-direct" aria-label="Direct WhatsApp Order Assistance">
+    <svg viewBox="0 0 24 24"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg>
+  </a>
+
+  <!-- Scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/config.js"></script>
+  <script src="js/supabase-client.js"></script>
+  <script src="js/products.js"></script>
+  <script src="js/app.js"></script>
+  <script src="js/product-detail.js"></script>
+</body>
+</html>

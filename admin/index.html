@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin Dashboard | Printable3D</title>
+  <meta name="robots" content="noindex, nofollow" />
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/svg+xml" href="../assets/favicon.svg" />
+
+  <!-- Admin Stylesheet -->
+  <link rel="stylesheet" href="../css/admin.css" />
+</head>
+<body>
+
+  <!-- ==================================================================== -->
+  <!-- 1. LOGIN SCREEN (Visible when unauthenticated) -->
+  <!-- ==================================================================== -->
+  <div class="login-screen-wrap" id="loginScreen">
+    <div class="login-card">
+      <div class="login-header">
+        <div class="login-brand-icon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
+            <polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline>
+            <line x1="12" y1="22.08" x2="12" y2="12"></line>
+          </svg>
+        </div>
+        <h1 class="login-title">Printable<span style="color: var(--admin-orange);">3D</span> Console</h1>
+        <p class="login-subtitle">Sign in to manage products, pricing, and photos</p>
+      </div>
+
+      <!-- Config Notice if Supabase is not yet configured -->
+      <div id="configNoticeBox" style="display: none; background-color: #FEF3C7; border: 1px solid #F59E0B; border-radius: var(--radius-sm); padding: 0.85rem; font-size: 0.8125rem; color: #92400E; margin-bottom: 1.5rem;">
+        <strong>Supabase Credentials Needed:</strong> Please set your Supabase Project URL and Anon Key in <code>js/config.js</code>. Run <code>supabase/schema.sql</code> in your Supabase SQL editor to create the database tables.
+      </div>
+
+      <!-- Login Form -->
+      <form id="adminLoginForm">
+        <div class="form-group" style="margin-bottom: 1rem;">
+          <label for="adminEmail" class="form-label">Admin Email <span class="req">*</span></label>
+          <input
+            type="email"
+            id="adminEmail"
+            class="form-input"
+            placeholder="admin@printable3d.store"
+            required
+            autocomplete="email"
+          />
+        </div>
+
+        <div class="form-group" style="margin-bottom: 1.5rem;">
+          <label for="adminPassword" class="form-label">Password <span class="req">*</span></label>
+          <input
+            type="password"
+            id="adminPassword"
+            class="form-input"
+            placeholder="••••••••••••"
+            required
+            autocomplete="current-password"
+          />
+        </div>
+
+        <button type="submit" class="btn btn-primary" id="btnAdminLogin" style="width: 100%; padding: 0.8rem;">
+          <span id="loginBtnText">Sign In to Dashboard</span>
+          <div id="loginSpinner" style="display: none; width: 18px; height: 18px; border: 2px solid #FFFFFF; border-top-color: transparent; border-radius: 50%; animation: spin 0.8s linear infinite;"></div>
+        </button>
+      </form>
+
+      <div style="margin-top: 1.5rem; text-align: center;">
+        <a href="../index.html" style="font-size: 0.8125rem; color: var(--admin-text-muted); text-decoration: underline;">
+          &larr; Back to Public Store
+        </a>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ==================================================================== -->
+  <!-- 2. DASHBOARD VIEW (Visible when authenticated) -->
+  <!-- ==================================================================== -->
+  <div class="admin-layout" id="dashboardScreen">
+    <!-- Navbar -->
+    <header class="admin-navbar">
+      <div class="admin-nav-brand">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
+        </svg>
+        <span>Printable<span style="color: var(--admin-orange);">3D</span> Admin</span>
+      </div>
+
+      <div class="admin-nav-actions">
+        <a href="../index.html" target="_blank" rel="noopener noreferrer" class="btn btn-secondary btn-sm" title="Open storefront in new tab">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
+          <span>Live Store</span>
+        </a>
+
+        <div class="admin-user-pill">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+          <span id="currentAdminEmail">admin@printable3d.store</span>
+        </div>
+
+        <button type="button" class="btn btn-secondary btn-sm" id="btnAdminLogout">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+          <span>Logout</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="admin-main">
+      <!-- Title & Action -->
+      <div class="dash-header-row">
+        <div class="dash-title-group">
+          <h1>Product Catalogue Management</h1>
+          <p>Add, edit, manage photos, and set availability status for all 3D-printed products.</p>
+        </div>
+        <div>
+          <button type="button" class="btn btn-primary" id="btnOpenAddModal">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+            <span>Add New Product</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Quick Metrics Filter Cards -->
+      <div class="stats-grid">
+        <div class="stat-card active" data-status-filter="all">
+          <span class="stat-num" id="statCountTotal">0</span>
+          <span class="stat-label">All Products</span>
+        </div>
+        <div class="stat-card" data-status-filter="available">
+          <span class="stat-num" id="statCountAvailable" style="color: var(--admin-green);">0</span>
+          <span class="stat-label">Available (Public)</span>
+        </div>
+        <div class="stat-card" data-status-filter="draft">
+          <span class="stat-num" id="statCountDraft" style="color: var(--admin-amber);">0</span>
+          <span class="stat-label">Drafts (Hidden)</span>
+        </div>
+        <div class="stat-card" data-status-filter="unavailable">
+          <span class="stat-num" id="statCountUnavailable" style="color: var(--admin-text-muted);">0</span>
+          <span class="stat-label">Unavailable</span>
+        </div>
+      </div>
+
+      <!-- Products Table View -->
+      <div class="table-container">
+        <div class="table-toolbar">
+          <div class="table-search-wrap">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="11" cy="11" r="8"></circle>
+              <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+            </svg>
+            <input
+              type="text"
+              id="adminSearchInput"
+              class="table-search-input"
+              placeholder="Search by name, category, or slug..."
+            />
+          </div>
+
+          <div style="font-size: 0.8125rem; color: var(--admin-text-muted);" id="adminFilteredCount">
+            Showing all products
+          </div>
+        </div>
+
+        <div style="overflow-x: auto;">
+          <table class="products-table">
+            <thead>
+              <tr>
+                <th style="width: 40%;">Product</th>
+                <th>Category</th>
+                <th>Price & Shipping</th>
+                <th>Status</th>
+                <th style="text-align: right;">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="adminProductsTbody">
+              <!-- Populated dynamically via js/admin.js -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </main>
+  </div>
+
+
+  <!-- ==================================================================== -->
+  <!-- 3. ADD / EDIT PRODUCT MODAL -->
+  <!-- ==================================================================== -->
+  <div class="modal-backdrop" id="productFormModal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 class="modal-title" id="modalFormTitle">Add New Product</h2>
+        <button type="button" class="btn-action-icon" id="btnCloseModal" aria-label="Close modal">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
+      </div>
+
+      <form id="productForm">
+        <div class="modal-body">
+          <input type="hidden" id="formProductId" />
+
+          <div class="form-grid">
+            <!-- Product Name & Slug -->
+            <div class="form-grid form-grid-2">
+              <div class="form-group">
+                <label for="formProductName" class="form-label">Product Name <span class="req">*</span></label>
+                <input type="text" id="formProductName" class="form-input" placeholder="e.g. 3D Printed Phone Stand" required />
+              </div>
+
+              <div class="form-group">
+                <label for="formProductSlug" class="form-label">URL Slug (Auto-generated if blank)</label>
+                <input type="text" id="formProductSlug" class="form-input" placeholder="e.g. 3d-printed-phone-stand" />
+              </div>
+            </div>
+
+            <!-- Price, Original MRP & Shipping -->
+            <div class="form-grid form-grid-2">
+              <div class="form-group">
+                <label for="formProductPrice" class="form-label">Selling Price (₹) <span class="req">*</span></label>
+                <input type="number" id="formProductPrice" class="form-input" placeholder="199" min="0" step="1" required />
+              </div>
+
+              <div class="form-group">
+                <label for="formOriginalPrice" class="form-label">Original / MRP Price (₹) (Optional)</label>
+                <input type="number" id="formOriginalPrice" class="form-input" placeholder="349" min="0" step="1" />
+              </div>
+            </div>
+
+            <!-- Shipping Information -->
+            <div class="form-group">
+              <label for="formShippingInfo" class="form-label">Shipping Charges Information <span class="req">*</span></label>
+              <input
+                type="text"
+                id="formShippingInfo"
+                class="form-input"
+                placeholder="e.g. Additional shipping charges"
+                value="Additional shipping charges"
+                required
+              />
+              <span class="form-helper">Displayed separately to the customer on product cards and pre-filled in WhatsApp order.</span>
+            </div>
+
+            <!-- Category & Status -->
+            <div class="form-grid form-grid-2">
+              <div class="form-group">
+                <label for="formProductCategory" class="form-label">Category <span class="req">*</span></label>
+                <select id="formProductCategory" class="form-select" required>
+                  <option value="lamps">Lamps & Lighting</option>
+                  <option value="tech">Phone & Tech Stands</option>
+                  <option value="organizers">Organizers & Key Holders</option>
+                  <option value="planters">Planters & Pots</option>
+                  <option value="decor">Art & Decor</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Catalogue Status <span class="req">*</span></label>
+                <div class="status-radio-group">
+                  <label class="status-radio-label">
+                    <input type="radio" name="productStatus" value="available" checked />
+                    <span style="color: var(--admin-green);">● Available (Public)</span>
+                  </label>
+                  <label class="status-radio-label">
+                    <input type="radio" name="productStatus" value="draft" />
+                    <span style="color: var(--admin-amber);">● Draft (Hidden)</span>
+                  </label>
+                  <label class="status-radio-label">
+                    <input type="radio" name="productStatus" value="unavailable" />
+                    <span style="color: var(--admin-text-muted);">● Unavailable</span>
+                  </label>
+                </div>
+              </div>
+            </div>
+
+            <!-- Short & Full Description -->
+            <div class="form-group">
+              <label for="formShortDesc" class="form-label">Short Description</label>
+              <input type="text" id="formShortDesc" class="form-input" placeholder="One-line summary for product cards..." />
+            </div>
+
+            <div class="form-group">
+              <label for="formFullDesc" class="form-label">Full Description <span class="req">*</span></label>
+              <textarea id="formFullDesc" class="form-textarea" placeholder="Detailed product story, craftsmanship, dimensions, and usage..." required></textarea>
+            </div>
+
+            <!-- Key Features (One per line) -->
+            <div class="form-group">
+              <label for="formFeatures" class="form-label">Bullet Features (One per line)</label>
+              <textarea id="formFeatures" class="form-textarea" style="min-height: 80px;" placeholder="Miniature garage display for a 1:64 scale die-cast car&#10;Sideways car display inside the garage&#10;Four key-hanging hooks underneath"></textarea>
+            </div>
+
+            <!-- Photos & Supabase Storage Management -->
+            <div class="form-group">
+              <label class="form-label">Product Photos <span class="req">*</span></label>
+              <div class="image-upload-dropzone" id="imageDropzone">
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="color: var(--admin-orange); margin: 0 auto 0.5rem;">
+                  <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                  <circle cx="8.5" cy="8.5" r="1.5"></circle>
+                  <polyline points="21 15 16 10 5 21"></polyline>
+                </svg>
+                <div style="font-weight: 700; font-size: 0.9375rem;">Click to upload photos or drag & drop</div>
+                <div style="font-size: 0.75rem; color: var(--admin-text-muted); margin-top: 0.25rem;">
+                  PNG, JPG, WEBP up to 10MB (Automatically optimized for web)
+                </div>
+                <input type="file" id="photoFileInput" multiple accept="image/*" style="display: none;" />
+              </div>
+
+              <!-- Preview Grid for Photos -->
+              <div class="image-preview-grid" id="imagePreviewContainer">
+                <!-- Preview items rendered here -->
+              </div>
+
+              <!-- Optional manual URL input -->
+              <div style="margin-top: 0.75rem; display: flex; gap: 0.5rem;">
+                <input type="text" id="manualImageUrlInput" class="form-input" placeholder="Or paste existing image path (e.g. images/products/phone-stand-1.jpg)..." />
+                <button type="button" class="btn btn-secondary btn-sm" id="btnAddManualImage">Add URL</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" id="btnCancelModal">Cancel</button>
+          <button type="submit" class="btn btn-primary" id="btnSaveProduct">
+            <span id="saveBtnText">Save Product</span>
+            <div id="saveSpinner" style="display: none; width: 16px; height: 16px; border: 2px solid #FFFFFF; border-top-color: transparent; border-radius: 50%; animation: spin 0.8s linear infinite;"></div>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+
+  <!-- ==================================================================== -->
+  <!-- 4. DELETE CONFIRMATION MODAL -->
+  <!-- ==================================================================== -->
+  <div class="modal-backdrop" id="deleteConfirmModal">
+    <div class="modal-content" style="max-width: 440px;">
+      <div class="modal-header">
+        <h3 class="modal-title" style="color: var(--admin-red);">Delete Product</h3>
+        <button type="button" class="btn-action-icon" id="btnCloseDeleteModal">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
+      </div>
+      <div class="modal-body">
+        <p style="font-size: 0.9375rem; color: var(--admin-text-main); margin-bottom: 0.5rem;">
+          Are you sure you want to delete <strong id="deleteProductName">this product</strong>?
+        </p>
+        <p style="font-size: 0.8125rem; color: var(--admin-text-muted);">
+          This will permanently remove the item from the Supabase database. This action cannot be undone.
+        </p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" id="btnCancelDelete">Cancel</button>
+        <button type="button" class="btn btn-danger" id="btnConfirmDelete">
+          <span id="deleteBtnText">Delete Forever</span>
+          <div id="deleteSpinner" style="display: none; width: 16px; height: 16px; border: 2px solid #FFFFFF; border-top-color: transparent; border-radius: 50%; animation: spin 0.8s linear infinite;"></div>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification -->
+  <div class="admin-toast" id="adminToast"></div>
+
+  <!-- Scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="../js/config.js"></script>
+  <script src="../js/supabase-client.js"></script>
+  <script src="../js/products.js"></script>
+  <script src="admin.js"></script>
+</body>
+</html>
