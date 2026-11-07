@@ -9,7 +9,8 @@ const CATEGORIES = [
   { id: "all", name: "All Products" },
   { id: "lamps", name: "Lamps & Lighting" },
   { id: "tech", name: "Phone & Tech Stands" },
-  { id: "organizers", name: "Organizers & Key Holders" }
+  { id: "organizers", name: "Organizers & Key Holders" },
+  { id: "decor", name: "Art & Decor" }
 ];
 
 /**
@@ -177,6 +178,39 @@ const INITIAL_PRODUCTS = [
       "images/products/butterfly-lamp-detail.png"
     ],
     svgType: "lamp"
+  },
+  {
+    id: "3d-printed-cute-ghost",
+    name: "3D Printed Cute Ghost Figurine",
+    slug: "3d-printed-cute-ghost",
+    category: "decor",
+    categoryName: "Art & Decor",
+    price: 149,
+    originalPrice: null,
+    shipping_info: "Additional shipping charges",
+    shippingInfo: "Additional shipping charges",
+    status: "available", // Published
+    badge: "Popular Desk Companion",
+    rating: 5.0,
+    reviewsCount: 0,
+    featured: true,
+    shortDescription: "A cute little 3D printed ghost figurine with a charming face, perfect for desks, shelves and gifting.",
+    fullDescription: "Meet your new little desk companion! This adorable 3D Printed Cute Ghost Figurine features a smooth ghost-shaped design, glossy black eyes and a tiny smile. Its compact design makes it perfect for decorating your workspace, bedroom or shelf. A fun little gift for friends and anyone who loves cute collectibles.",
+    features: [
+      "Cute ghost-inspired design",
+      "3D printed with detailed surface finish",
+      "Compact decorative desk companion",
+      "Glossy black eyes and adorable expression",
+      "Great for gifting and personal collections"
+    ],
+    colors: [],
+    specs: {},
+    images: [
+      "images/products/cute-ghost-1.png",
+      "images/products/cute-ghost-2.png",
+      "images/products/cute-ghost-3.png"
+    ],
+    svgType: "ghost"
   }
 ];
 
@@ -250,7 +284,9 @@ const ProductService = {
       "moon-lamp": "3d-printed-lamp",
       "phone-stand": "3d-printed-phone-stand",
       "mini-garage-key-holder": "3d-printed-car-key-holder",
-      "mini-garage": "3d-printed-car-key-holder"
+      "mini-garage": "3d-printed-car-key-holder",
+      "cute-ghost": "3d-printed-cute-ghost",
+      "ghost": "3d-printed-cute-ghost"
     };
     return aliases[slug.toLowerCase()] || slug;
   },
@@ -327,6 +363,15 @@ const ProductService = {
           <circle cx="130" cy="90" r="8" fill="#FDE68A"/>
           <circle cx="165" cy="120" r="10" fill="#FDE68A"/>
           <path d="M100 170 Q125 150 150 165 T200 170 L205 185 Q160 170 95 185 Z" fill="#334155"/>
+        `;
+        break;
+      case 'ghost':
+      case 'decor':
+        iconPath = `
+          <path d="M110 185 C105 110 120 75 150 75 C180 75 195 110 190 185 C182 178 174 190 166 182 C158 176 150 188 142 180 C134 175 126 186 118 180 Z" fill="#FFFFFF" stroke="#0F172A" stroke-width="4"/>
+          <circle cx="136" cy="125" r="6" fill="#0F172A"/>
+          <circle cx="164" cy="125" r="6" fill="#0F172A"/>
+          <path d="M144 138 Q150 144 156 138" stroke="#0F172A" stroke-width="2.5" fill="none" stroke-linecap="round"/>
         `;
         break;
       default:

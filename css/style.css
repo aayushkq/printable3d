@@ -1097,12 +1097,15 @@ html[data-theme="dark"] .hero-section {
   aspect-ratio: 1 / 1;
   background-color: var(--bg-subtle);
   overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .product-media img {
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: contain;
   transition: transform var(--transition-slow);
 }
 
@@ -1616,12 +1619,15 @@ html[data-theme="dark"] .hero-section {
   aspect-ratio: 1 / 1;
   overflow: hidden;
   box-shadow: var(--shadow-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .detail-main-image-wrap img {
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: contain;
   transition: transform 0.3s ease;
 }
 
