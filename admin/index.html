@@ -11,6 +11,21 @@
 
   <!-- Admin Stylesheet -->
   <link rel="stylesheet" href="../css/admin.css" />
+
+  <!-- Theme Initialization (Prevents flash of unstyled theme) -->
+  <script>
+    (function() {
+      try {
+        var userTheme = localStorage.getItem('printable3d_user_theme');
+        var siteTheme = localStorage.getItem('printable3d_theme') || 'system';
+        var theme = userTheme || siteTheme;
+        if (theme === 'system') {
+          theme = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+        }
+        document.documentElement.setAttribute('data-theme', theme);
+      } catch(e) {}
+    })();
+  </script>
 </head>
 <body>
 
@@ -182,6 +197,102 @@
           </table>
         </div>
       </div>
+
+      <!-- Appearance Settings Section -->
+      <section class="admin-section-card" id="adminAppearanceSection" style="margin-top: 2rem;">
+        <div class="section-card-header">
+          <div>
+            <h2 style="font-size: 1.125rem; font-weight: 800; color: var(--admin-text-main); margin-bottom: 0.25rem;">
+              Website Appearance Settings
+            </h2>
+            <p style="font-size: 0.8125rem; color: var(--admin-text-muted); margin: 0;">
+              Control the global theme for Printable3D. Applies across homepage, shop, product pages, and admin console.
+            </p>
+          </div>
+          <div class="theme-status-indicator" id="currentThemeBadge">
+            Active: <strong id="currentThemeBadgeText">System Default</strong>
+          </div>
+        </div>
+
+        <div class="appearance-options-grid">
+          <!-- Light Mode Option -->
+          <div class="appearance-card" data-theme-option="light" tabindex="0" role="button" aria-label="Select Light Mode">
+            <div class="appearance-preview preview-light">
+              <div class="preview-mock-header"></div>
+              <div class="preview-mock-content">
+                <div class="preview-mock-hero"></div>
+                <div class="preview-mock-card"></div>
+              </div>
+            </div>
+            <div class="appearance-meta">
+              <div class="appearance-title">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <circle cx="12" cy="12" r="5"></circle>
+                  <line x1="12" y1="1" x2="12" y2="3"></line>
+                  <line x1="12" y1="21" x2="12" y2="23"></line>
+                  <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                  <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                  <line x1="1" y1="12" x2="3" y2="12"></line>
+                  <line x1="21" y1="12" x2="23" y2="12"></line>
+                  <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                  <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                </svg>
+                <span>Light Mode</span>
+              </div>
+              <p class="appearance-desc">Crisp white &amp; light background, high contrast dark typography, signature orange accents.</p>
+            </div>
+            <div class="appearance-check">✓</div>
+          </div>
+
+          <!-- Dark Mode Option -->
+          <div class="appearance-card" data-theme-option="dark" tabindex="0" role="button" aria-label="Select Dark Mode">
+            <div class="appearance-preview preview-dark">
+              <div class="preview-mock-header"></div>
+              <div class="preview-mock-content">
+                <div class="preview-mock-hero"></div>
+                <div class="preview-mock-card"></div>
+              </div>
+            </div>
+            <div class="appearance-meta">
+              <div class="appearance-title">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                </svg>
+                <span>Dark Mode</span>
+              </div>
+              <p class="appearance-desc">Deep charcoal (#1E1E1D) surfaces, refined dark contrast, and illuminated orange highlights.</p>
+            </div>
+            <div class="appearance-check">✓</div>
+          </div>
+
+          <!-- System Default Option -->
+          <div class="appearance-card selected" data-theme-option="system" tabindex="0" role="button" aria-label="Select System Default">
+            <div class="appearance-preview preview-system">
+              <div class="preview-mock-split-light"></div>
+              <div class="preview-mock-split-dark"></div>
+            </div>
+            <div class="appearance-meta">
+              <div class="appearance-title">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
+                  <line x1="8" y1="21" x2="16" y2="21"></line>
+                  <line x1="12" y1="17" x2="12" y2="21"></line>
+                </svg>
+                <span>System Default</span>
+              </div>
+              <p class="appearance-desc">Automatically adapts to each visitor's OS or device preference (prefers-color-scheme).</p>
+            </div>
+            <div class="appearance-check">✓</div>
+          </div>
+        </div>
+
+        <div style="margin-top: 1.25rem; display: flex; justify-content: flex-end; align-items: center; gap: 1rem;">
+          <span id="themeSaveFeedback" style="font-size: 0.8125rem; color: #16A34A; display: none; font-weight: 600;">Appearance saved globally!</span>
+          <button type="button" class="btn btn-primary" id="btnSaveAppearance">
+            <span>Apply Appearance</span>
+          </button>
+        </div>
+      </section>
     </main>
   </div>
 
@@ -189,7 +300,7 @@
   <!-- ==================================================================== -->
   <!-- 3. ADD / EDIT PRODUCT MODAL -->
   <!-- ==================================================================== -->
-  <div class="modal-backdrop" id="productFormModal">
+  <div class="modal-backdrop" id="productFormModal" role="dialog" aria-modal="true" aria-labelledby="modalFormTitle">
     <div class="modal-content">
       <div class="modal-header">
         <h2 class="modal-title" id="modalFormTitle">Add New Product</h2>
@@ -308,7 +419,7 @@
                 <div style="font-size: 0.75rem; color: var(--admin-text-muted); margin-top: 0.25rem;">
                   PNG, JPG, WEBP up to 10MB (Automatically optimized for web)
                 </div>
-                <input type="file" id="photoFileInput" multiple accept="image/*" style="display: none;" />
+                <input type="file" id="photoFileInput" multiple accept="image/jpeg,image/png,image/webp,image/jpg" style="display: none;" />
               </div>
 
               <!-- Preview Grid for Photos -->

@@ -209,14 +209,55 @@
     },
 
     /**
+     * Helper to sanitize product payload to strict Supabase PostgreSQL schema columns.
+     * Prevents PGRST204 errors when frontend passes camelCase convenience properties.
+     */
+    sanitizeProductPayload: function (p) {
+      const payload = {};
+      if (p.name !== undefined) payload.name = p.name;
+      if (p.slug !== undefined) payload.slug = p.slug;
+      if (p.category !== undefined) payload.category = p.category;
+      if (p.category_name !== undefined || p.categoryName !== undefined) {
+        payload.category_name = p.category_name || p.categoryName;
+      }
+      if (p.price !== undefined) payload.price = Number(p.price);
+      if (p.original_price !== undefined || p.originalPrice !== undefined) {
+        const op = p.original_price !== undefined ? p.original_price : p.originalPrice;
+        payload.original_price = op ? Number(op) : null;
+      }
+      if (p.shipping_info !== undefined || p.shippingInfo !== undefined) {
+        payload.shipping_info = p.shipping_info || p.shippingInfo;
+      }
+      if (p.status !== undefined) payload.status = p.status;
+      if (p.short_description !== undefined || p.shortDescription !== undefined) {
+        payload.short_description = p.short_description !== undefined ? p.short_description : p.shortDescription;
+      }
+      if (p.full_description !== undefined || p.fullDescription !== undefined) {
+        payload.full_description = p.full_description !== undefined ? p.full_description : p.fullDescription;
+      }
+      if (p.features !== undefined) payload.features = Array.isArray(p.features) ? p.features : [];
+      if (p.specs !== undefined) payload.specs = p.specs || {};
+      if (p.colors !== undefined) payload.colors = Array.isArray(p.colors) ? p.colors : [];
+      if (p.images !== undefined) payload.images = Array.isArray(p.images) ? p.images : [p.images];
+      if (p.featured !== undefined) payload.featured = Boolean(p.featured);
+      if (p.rating !== undefined) payload.rating = Number(p.rating);
+      if (p.reviews_count !== undefined || p.reviewsCount !== undefined) {
+        payload.reviews_count = Number(p.reviews_count !== undefined ? p.reviews_count : p.reviewsCount);
+      }
+      return payload;
+    },
+
+    /**
      * Insert product (Admin only)
      */
     insertProduct: async function (productData) {
+      const sanitized = this.sanitizeProductPayload(productData);
       const client = getClient();
       if (!client) {
         // Fallback for offline demo mode
         const newProduct = {
           ...productData,
+          ...sanitized,
           id: "local-" + Date.now(),
           created_at: new Date().toISOString()
         };
@@ -228,7 +269,7 @@
 
       const { data, error } = await client
         .from("products")
-        .insert([productData])
+        .insert([sanitized])
         .select()
         .single();
 
@@ -240,12 +281,13 @@
      * Update product (Admin only)
      */
     updateProduct: async function (id, updates) {
+      const sanitized = this.sanitizeProductPayload(updates);
       const client = getClient();
       if (!client) {
         if (window.LOCAL_PRODUCTS) {
           const idx = window.LOCAL_PRODUCTS.findIndex(p => p.id === id || p.slug === id);
           if (idx !== -1) {
-            window.LOCAL_PRODUCTS[idx] = { ...window.LOCAL_PRODUCTS[idx], ...updates, updated_at: new Date().toISOString() };
+            window.LOCAL_PRODUCTS[idx] = { ...window.LOCAL_PRODUCTS[idx], ...updates, ...sanitized, updated_at: new Date().toISOString() };
             return window.LOCAL_PRODUCTS[idx];
           }
         }
@@ -254,7 +296,7 @@
 
       const { data, error } = await client
         .from("products")
-        .update(updates)
+        .update(sanitized)
         .eq("id", id)
         .select()
         .single();
@@ -285,11 +327,73 @@
     },
 
     // ==========================================================
+    // SITE SETTINGS (GLOBAL THEME & APPEARANCE)
+    // ==========================================================
+    getSiteSetting: async function (key) {
+      const client = getClient();
+      if (!client) {
+        try {
+          const local = localStorage.getItem("printable3d_setting_" + key);
+          return local ? JSON.parse(local) : null;
+        } catch (e) {
+          return null;
+        }
+      }
+
+      try {
+        const { data, error } = await client
+          .from("site_settings")
+          .select("value")
+          .eq("key", key)
+          .maybeSingle();
+
+        if (error) {
+          console.warn("[Printable3D] site_settings query notice:", error.message);
+          const local = localStorage.getItem("printable3d_setting_" + key);
+          return local ? JSON.parse(local) : null;
+        }
+        if (data && data.value) {
+          try {
+            localStorage.setItem("printable3d_setting_" + key, JSON.stringify(data.value));
+          } catch (e) {}
+          return data.value;
+        }
+        return null;
+      } catch (err) {
+        const local = localStorage.getItem("printable3d_setting_" + key);
+        return local ? JSON.parse(local) : null;
+      }
+    },
+
+    saveSiteSetting: async function (key, value) {
+      try {
+        localStorage.setItem("printable3d_setting_" + key, JSON.stringify(value));
+      } catch (e) {}
+
+      const client = getClient();
+      if (!client) return value;
+
+      try {
+        const { error } = await client
+          .from("site_settings")
+          .upsert({ key, value, updated_at: new Date().toISOString() });
+
+        if (error) {
+          console.warn("[Printable3D] Could not save site_setting to Supabase (using local):", error.message);
+        }
+      } catch (err) {
+        console.warn("[Printable3D] Supabase site_settings save error:", err);
+      }
+      return value;
+    },
+
+    // ==========================================================
     // STORAGE (IMAGE UPLOADS)
     // ==========================================================
 
     /**
      * Upload an image to Supabase Storage with optimization
+     * Supports JPG, JPEG, PNG, WEBP (up to 10MB)
      * @param {File|Blob} file - Image file to upload
      * @param {string} [customFileName] - Optional custom filename
      * @returns {Promise<string>} Public URL of uploaded image
@@ -300,23 +404,35 @@
         throw new Error("Supabase is not configured. Please set up your Supabase project credentials in js/config.js.");
       }
 
-      // 1. Optimize image (resizes to max 1600px width/height and compresses to WebP/JPEG)
-      const optimizedBlob = await this.optimizeImage(file, 1600, 0.85);
+      // Determine extension & MIME
+      let ext = "jpg";
+      let contentType = "image/jpeg";
+      const rawExt = file.name ? file.name.split(".").pop().toLowerCase() : "";
+
+      if (file.type === "image/png" || rawExt === "png") {
+        ext = "png";
+        contentType = "image/png";
+      } else if (file.type === "image/webp" || rawExt === "webp") {
+        ext = "webp";
+        contentType = "image/webp";
+      }
+
+      // Optimize image (resizes to max 1920px width/height and compresses preserving high detail)
+      const optimizedBlob = await this.optimizeImage(file, 1920, 0.88);
 
       const bucket = (window.STORE_CONFIG && window.STORE_CONFIG.supabaseStorageBucket) || "product-images";
-      const fileExt = file.name ? file.name.split(".").pop().toLowerCase() : "jpg";
       const cleanName = (customFileName || (file.name ? file.name.replace(/\.[^/.]+$/, "") : "product"))
         .toLowerCase()
         .replace(/[^a-z0-9]/g, "-");
 
-      const uniquePath = `products/${Date.now()}-${cleanName}.${fileExt === "png" ? "png" : "jpg"}`;
+      const uniquePath = `products/${Date.now()}-${cleanName}.${ext}`;
 
       const { data, error } = await client.storage
         .from(bucket)
         .upload(uniquePath, optimizedBlob, {
           cacheControl: "31536000",
           upsert: true,
-          contentType: fileExt === "png" ? "image/png" : "image/jpeg"
+          contentType: contentType
         });
 
       if (error) throw error;
@@ -353,8 +469,9 @@
 
     /**
      * Client-side image optimizer using HTML Canvas
+     * Supports JPG, JPEG, PNG, WEBP with high visual quality retention
      */
-    optimizeImage: function (file, maxDimension = 1600, quality = 0.85) {
+    optimizeImage: function (file, maxDimension = 1920, quality = 0.88) {
       return new Promise((resolve) => {
         // If not an image or SVG, return as is
         if (!file.type.startsWith("image/") || file.type.includes("svg")) {
@@ -368,6 +485,7 @@
             let width = img.width;
             let height = img.height;
 
+            // Only downscale if larger than maxDimension
             if (width > maxDimension || height > maxDimension) {
               if (width > height) {
                 height = Math.round((height * maxDimension) / width);
@@ -383,9 +501,17 @@
             canvas.height = height;
 
             const ctx = canvas.getContext("2d");
+            ctx.imageSmoothingEnabled = true;
+            ctx.imageSmoothingQuality = "high";
             ctx.drawImage(img, 0, 0, width, height);
 
-            const mime = file.type === "image/png" ? "image/png" : "image/jpeg";
+            let mime = "image/jpeg";
+            if (file.type === "image/png") {
+              mime = "image/png";
+            } else if (file.type === "image/webp") {
+              mime = "image/webp";
+            }
+
             canvas.toBlob(
               (blob) => {
                 resolve(blob || file);

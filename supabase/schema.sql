@@ -126,6 +126,43 @@ create policy "Admins can view admin list"
   using (user_id = auth.uid() or public.is_admin());
 
 
+-- 4b. Site Settings Table (Global Theme & Appearance Configuration)
+create table if not exists public.site_settings (
+  key text primary key,
+  value jsonb not null,
+  updated_at timestamptz not null default now()
+);
+
+alter table public.site_settings enable row level security;
+
+drop policy if exists "Public visitors can view site settings" on public.site_settings;
+drop policy if exists "Admins can insert site settings" on public.site_settings;
+drop policy if exists "Admins can update site settings" on public.site_settings;
+
+create policy "Public visitors can view site settings"
+  on public.site_settings
+  for select
+  using (true);
+
+create policy "Admins can insert site settings"
+  on public.site_settings
+  for insert
+  to authenticated
+  with check (public.is_admin());
+
+create policy "Admins can update site settings"
+  on public.site_settings
+  for update
+  to authenticated
+  using (public.is_admin())
+  with check (public.is_admin());
+
+-- Seed default appearance setting: system default
+insert into public.site_settings (key, value)
+values ('appearance', '{"theme": "system"}'::jsonb)
+on conflict (key) do nothing;
+
+
 -- 5. Supabase Storage Setup: 'product-images' bucket
 insert into storage.buckets (id, name, public)
 values ('product-images', 'product-images', true)
@@ -246,7 +283,7 @@ insert into public.products (
   36
 );
 
--- PRODUCT 3: 3D Printed Mini Garage Key Holder (DRAFT)
+-- PRODUCT 3: 3D Printed Car Key Holder (DRAFT)
 insert into public.products (
   name,
   slug,
@@ -266,16 +303,16 @@ insert into public.products (
   rating,
   reviews_count
 ) values (
-  '3D Printed Mini Garage Key Holder',
-  '3d-printed-mini-garage-key-holder',
+  '3D Printed Car Key Holder',
+  '3d-printed-car-key-holder',
   'organizers',
   'Organizers & Key Holders',
-  399,
-  699,
+  249,
+  499,
   'Additional shipping charges',
   'draft',
-  'A miniature 3D-printed garage key holder featuring a die-cast car displayed sideways inside, a roller shutter design, warm LED lighting and 4 hooks.',
-  'A miniature 3D-printed garage featuring a Hot Wheels-style die-cast car displayed sideways inside, a roller shutter design, warm LED-style lighting and hooks underneath for hanging car keys. Designed for wall mounting in entryways, garages, and bedrooms.',
+  'A 3D printed wall-mounted car key holder.',
+  'A 3D printed wall-mounted car key holder. Features a miniature garage display shelf with roller shutter styling and reinforced hooks underneath for hanging car and house keys.',
   '["Miniature garage display for a 1:64 scale die-cast car", "Sideways car display inside the garage", "Garage shutter design", "Four key-hanging hooks underneath", "Wall-mounted design", "Editable product price and description"]'::jsonb,
   '{"material": "Structural Rigid PLA+", "scale": "1:64 Die-cast Car Display Slot", "hooks": "4 Reinforced Key Pegs", "mounting": "Dual Screw Slots / High-strength 3M tape backing", "lighting": "Warm LED interior spotlight cavity"}'::jsonb,
   '[{"name": "Industrial White", "hex": "#FFFFFF", "inStock": true}, {"name": "Garage Matte Black", "hex": "#18181B", "inStock": true}]'::jsonb,
@@ -284,6 +321,59 @@ insert into public.products (
   5.0,
   12
 );
+
+-- PRODUCT 4: 3D Printed Butterfly Glow Lamp
+insert into public.products (
+  name,
+  slug,
+  category,
+  category_name,
+  price,
+  original_price,
+  shipping_info,
+  status,
+  short_description,
+  full_description,
+  features,
+  specs,
+  colors,
+  images,
+  featured,
+  rating,
+  reviews_count
+) values (
+  '3D Printed Butterfly Glow Lamp',
+  '3d-printed-butterfly-glow-lamp',
+  'lamps',
+  'Lamps & Lighting',
+  499,
+  null,
+  'Additional shipping charges',
+  'available',
+  'A decorative 3D printed lamp featuring beautiful butterfly-shaped cutouts that create a warm, ambient glow.',
+  'Add a touch of warmth and elegance to your space with this 3D Printed Butterfly Glow Lamp. Its detailed butterfly-patterned shade creates a beautiful lighting effect when illuminated. A unique decorative piece for bedrooms, desks and cosy corners.',
+  '["Detailed 3D printed butterfly pattern", "Warm decorative lighting effect", "Unique textured lampshade", "Suitable for bedroom and desk decoration", "Distinctive handmade-style appearance"]'::jsonb,
+  '{}'::jsonb,
+  '[]'::jsonb,
+  array['images/products/butterfly-lamp-hanging.png', 'images/products/butterfly-lamp-front.png', 'images/products/butterfly-lamp-detail.png'],
+  true,
+  5.0,
+  0
+) on conflict (slug) do update set
+  name = excluded.name,
+  category = excluded.category,
+  category_name = excluded.category_name,
+  price = excluded.price,
+  original_price = excluded.original_price,
+  shipping_info = excluded.shipping_info,
+  status = excluded.status,
+  short_description = excluded.short_description,
+  full_description = excluded.full_description,
+  features = excluded.features,
+  specs = excluded.specs,
+  colors = excluded.colors,
+  images = excluded.images,
+  featured = excluded.featured;
 
 
 -- ============================================================================

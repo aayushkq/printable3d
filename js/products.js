@@ -104,22 +104,22 @@ const INITIAL_PRODUCTS = [
     svgType: "phone-stand"
   },
   {
-    id: "3d-printed-mini-garage-key-holder",
-    name: "3D Printed Mini Garage Key Holder",
-    slug: "3d-printed-mini-garage-key-holder",
+    id: "3d-printed-car-key-holder",
+    name: "3D Printed Car Key Holder",
+    slug: "3d-printed-car-key-holder",
     category: "organizers",
     categoryName: "Organizers & Key Holders",
-    price: 399,
-    originalPrice: 699,
+    price: 249,
+    originalPrice: 499,
     shipping_info: "Additional shipping charges",
     shippingInfo: "Additional shipping charges",
-    status: "draft", // DRAFT - Not shown to public until manufactured & approved
-    badge: "Draft / Coming Soon",
+    status: "draft", // DRAFT - Kept as draft until actual photo & price are approved
+    badge: "Draft",
     rating: 5.0,
     reviewsCount: 12,
     featured: false,
-    shortDescription: "A miniature 3D-printed garage featuring a Hot Wheels-style die-cast car displayed sideways inside, roller shutter, warm lighting and 4 hooks.",
-    fullDescription: "A miniature 3D-printed garage featuring a Hot Wheels-style die-cast car displayed sideways inside, a roller shutter design, warm LED-style lighting and hooks underneath for hanging car keys. Designed for wall mounting in entryways, garages, and bedrooms.",
+    shortDescription: "A 3D printed wall-mounted car key holder.",
+    fullDescription: "A 3D printed wall-mounted car key holder. Features a miniature garage display shelf with roller shutter styling and reinforced hooks underneath for hanging car and house keys.",
     features: [
       "Miniature garage display for a 1:64 scale die-cast car",
       "Sideways car display inside the garage",
@@ -144,6 +144,39 @@ const INITIAL_PRODUCTS = [
       "images/products/mini-garage-key-holder-2.png"
     ],
     svgType: "garage"
+  },
+  {
+    id: "3d-printed-butterfly-glow-lamp",
+    name: "3D Printed Butterfly Glow Lamp",
+    slug: "3d-printed-butterfly-glow-lamp",
+    category: "lamps",
+    categoryName: "Lamps & Lighting",
+    price: 499,
+    originalPrice: null,
+    shipping_info: "Additional shipping charges",
+    shippingInfo: "Additional shipping charges",
+    status: "available", // Published
+    badge: "New Arrival",
+    rating: 5.0,
+    reviewsCount: 0,
+    featured: true,
+    shortDescription: "A decorative 3D printed lamp featuring beautiful butterfly-shaped cutouts that create a warm, ambient glow.",
+    fullDescription: "Add a touch of warmth and elegance to your space with this 3D Printed Butterfly Glow Lamp. Its detailed butterfly-patterned shade creates a beautiful lighting effect when illuminated. A unique decorative piece for bedrooms, desks and cosy corners.",
+    features: [
+      "Detailed 3D printed butterfly pattern",
+      "Warm decorative lighting effect",
+      "Unique textured lampshade",
+      "Suitable for bedroom and desk decoration",
+      "Distinctive handmade-style appearance"
+    ],
+    colors: [],
+    specs: {},
+    images: [
+      "images/products/butterfly-lamp-hanging.png",
+      "images/products/butterfly-lamp-front.png",
+      "images/products/butterfly-lamp-detail.png"
+    ],
+    svgType: "lamp"
   }
 ];
 
@@ -163,7 +196,14 @@ const ProductService = {
     if (window.SupabaseService && window.SupabaseService.isConfigured()) {
       try {
         const rows = await window.SupabaseService.getPublishedProducts();
-        if (rows && rows.length > 0) return rows.map(normalizeProduct);
+        if (rows && rows.length > 0) {
+          const supabaseProducts = rows.map(normalizeProduct);
+          const existingSlugs = new Set(supabaseProducts.map(p => p.slug || p.id));
+          const localOnly = window.LOCAL_PRODUCTS
+            .filter(p => p.status === "available" && !existingSlugs.has(p.slug) && !existingSlugs.has(p.id))
+            .map(normalizeProduct);
+          return [...supabaseProducts, ...localOnly];
+        }
       } catch (e) {
         console.warn("[Printable3D] Supabase query failed, falling back to local published products:", e);
       }
@@ -185,7 +225,14 @@ const ProductService = {
     if (window.SupabaseService && window.SupabaseService.isConfigured()) {
       try {
         const rows = await window.SupabaseService.getAllProductsAdmin();
-        if (rows && rows.length > 0) return rows.map(normalizeProduct);
+        if (rows && rows.length > 0) {
+          const supabaseProducts = rows.map(normalizeProduct);
+          const existingSlugs = new Set(supabaseProducts.map(p => p.slug || p.id));
+          const localOnly = window.LOCAL_PRODUCTS
+            .filter(p => !existingSlugs.has(p.slug) && !existingSlugs.has(p.id))
+            .map(normalizeProduct);
+          return [...supabaseProducts, ...localOnly];
+        }
       } catch (err) {
         console.warn("[Printable3D] Supabase admin fetch warning (table may not be created yet):", err.message);
       }
@@ -194,12 +241,28 @@ const ProductService = {
   },
 
   /**
+   * Slug alias resolution for backward compatibility with previous links
+   */
+  resolveSlugAlias: function (slug) {
+    if (!slug) return slug;
+    const aliases = {
+      "lunar-moon-lamp": "3d-printed-lamp",
+      "moon-lamp": "3d-printed-lamp",
+      "phone-stand": "3d-printed-phone-stand",
+      "mini-garage-key-holder": "3d-printed-car-key-holder",
+      "mini-garage": "3d-printed-car-key-holder"
+    };
+    return aliases[slug.toLowerCase()] || slug;
+  },
+
+  /**
    * Get single product by ID or Slug
    */
   getById: async function (idOrSlug, isAdmin = false) {
+    const resolvedId = ProductService.resolveSlugAlias(idOrSlug);
     if (window.SupabaseService && window.SupabaseService.isConfigured()) {
       try {
-        const row = await window.SupabaseService.getProductByIdOrSlug(idOrSlug, isAdmin);
+        const row = await window.SupabaseService.getProductByIdOrSlug(resolvedId, isAdmin);
         if (row) return normalizeProduct(row);
       } catch (e) {
         console.warn("[Printable3D] Supabase single product query failed:", e);
@@ -207,7 +270,7 @@ const ProductService = {
     }
 
     const all = window.LOCAL_PRODUCTS;
-    const found = all.find(p => p.id === idOrSlug || p.slug === idOrSlug);
+    const found = all.find(p => p.id === resolvedId || p.slug === resolvedId || p.id === idOrSlug || p.slug === idOrSlug);
     if (!found) return null;
     if (!isAdmin && found.status !== "available") return null;
     return normalizeProduct(found);
@@ -217,8 +280,9 @@ const ProductService = {
    * Synchronous fallback for instant single product lookup
    */
   getByIdSync: function (idOrSlug, isAdmin = false) {
+    const resolvedId = ProductService.resolveSlugAlias(idOrSlug);
     const all = window.LOCAL_PRODUCTS;
-    const found = all.find(p => p.id === idOrSlug || p.slug === idOrSlug);
+    const found = all.find(p => p.id === resolvedId || p.slug === resolvedId || p.id === idOrSlug || p.slug === idOrSlug);
     if (!found) return all.find(p => p.status === "available") || all[0];
     if (!isAdmin && found.status !== "available") return all.find(p => p.status === "available") || null;
     return normalizeProduct(found);

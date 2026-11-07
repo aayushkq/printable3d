@@ -116,7 +116,14 @@ async function initProductDetailPage() {
   }
 
   if (ratingEl) {
-    ratingEl.textContent = `${product.rating.toFixed(1)} (${product.reviewsCount} verified orders)`;
+    if (product.reviewsCount && product.reviewsCount > 0) {
+      ratingEl.textContent = `${product.rating.toFixed(1)} (${product.reviewsCount} verified orders)`;
+      const ratingWrap = ratingEl.closest(".product-rating");
+      if (ratingWrap) ratingWrap.style.display = "flex";
+    } else {
+      const ratingWrap = ratingEl.closest(".product-rating");
+      if (ratingWrap) ratingWrap.style.display = "none";
+    }
   }
 
   // Populate Description & Features
@@ -256,15 +263,22 @@ async function initProductDetailPage() {
       if (product.specs.care) specEntries.push({ label: "Care Instructions", value: product.specs.care });
     }
 
-    // Always include shipping note in specs
-    specEntries.push({ label: "Shipping Policy", value: product.shippingInfo || "Additional shipping charges (calculated by delivery pincode)" });
+    const specsCard = specsTableBody.closest(".specs-card");
+    if (specEntries.length === 0) {
+      // Hide technical specifications card if product has no technical specs defined
+      if (specsCard) specsCard.style.display = "none";
+    } else {
+      if (specsCard) specsCard.style.display = "block";
+      // Always include shipping note in specs
+      specEntries.push({ label: "Shipping Policy", value: product.shippingInfo || "Additional shipping charges (calculated by delivery pincode)" });
 
-    specsTableBody.innerHTML = specEntries.map(spec => `
-      <tr>
-        <th>${spec.label}</th>
-        <td>${spec.value}</td>
-      </tr>
-    `).join("");
+      specsTableBody.innerHTML = specEntries.map(spec => `
+        <tr>
+          <th>${spec.label}</th>
+          <td>${spec.value}</td>
+        </tr>
+      `).join("");
+    }
   }
 
   // Populate Related Published Products

@@ -83,12 +83,34 @@ function initAdminApp() {
   // Active form photos state: array of { url: string, file?: File }
   let currentFormPhotos = [];
 
+  // Robust SVG fallback for broken image URLs
+  const FALLBACK_IMAGE_PLACEHOLDER = "data:image/svg+xml;charset=UTF-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22200%22%20height%3D%22200%22%20viewBox%3D%220%200%20200%20200%22%3E%3Crect%20fill%3D%22%23F1F5F9%22%20width%3D%22200%22%20height%3D%22200%22%2F%3E%3Cpath%20d%3D%22M40%20140l35-45%2025%2030%2035-45%2045%2060H40z%22%20fill%3D%22%23CBD5E1%22%2F%3E%3Ccircle%20cx%3D%2270%22%20cy%3D%2270%22%20r%3D%2215%22%20fill%3D%22%23CBD5E1%22%2F%3E%3Ctext%20x%3D%22100%22%20y%3D%22170%22%20font-family%3D%22sans-serif%22%20font-size%3D%2212%22%20fill%3D%22%2394A3B8%22%20text-anchor%3D%22middle%22%3ENo%20Image%3C%2Ftext%3E%3C%2Fsvg%3E";
+
+  /**
+   * Resolves relative image paths properly from within the /admin subdirectory.
+   * If a path is "images/products/...", it must be reached via "../images/products/..."
+   * or absolute URL so preview rendering does not 404.
+   */
+  function resolveAdminImageUrl(url) {
+    if (!url) return FALLBACK_IMAGE_PLACEHOLDER;
+    if (url.startsWith("blob:") || url.startsWith("data:") || url.startsWith("http://") || url.startsWith("https://")) {
+      return url;
+    }
+    if (url.startsWith("/")) {
+      return url;
+    }
+    return "../" + url;
+  }
+
   // Check Supabase configuration notice
   if (configNoticeBox) {
     if (!window.SupabaseService || !window.SupabaseService.isConfigured()) {
       configNoticeBox.style.display = "block";
     }
   }
+
+  // Load Appearance setting on initialization
+  loadAppearanceSetting();
 
   // Check existing session
   checkAuthSession();
@@ -222,7 +244,8 @@ function initAdminApp() {
     }
 
     tableTbody.innerHTML = filtered.map(product => {
-      const thumb = (product.images && product.images[0]) || "images/products/phone-stand-1.jpg";
+      const rawThumb = (product.images && product.images[0]) || "";
+      const thumb = resolveAdminImageUrl(rawThumb);
       const statusClass = product.status === "available" ? "status-available" : product.status === "draft" ? "status-draft" : "status-unavailable";
       const statusText = product.status === "available" ? "Available" : product.status === "draft" ? "Draft" : "Unavailable";
       const liveUrl = `../product.html?id=${encodeURIComponent(product.slug || product.id)}`;
@@ -235,7 +258,8 @@ function initAdminApp() {
                 <img
                   src="${thumb}"
                   alt="${product.name}"
-                  onerror="this.onerror=null; this.src='${ProductService.getFallbackSvg(product.svgType, product.name)}';"
+                  loading="lazy"
+                  onerror="this.onerror=null; this.src='${FALLBACK_IMAGE_PLACEHOLDER}';"
                 />
               </div>
               <div>
@@ -334,6 +358,9 @@ function initAdminApp() {
     currentFormPhotos = [];
     renderPhotoPreviews();
     formModal.classList.add("open");
+    setTimeout(() => {
+      if (formName) formName.focus();
+    }, 120);
   }
 
   function openEditProductModal(id) {
@@ -367,6 +394,9 @@ function initAdminApp() {
     renderPhotoPreviews();
 
     formModal.classList.add("open");
+    setTimeout(() => {
+      if (formName) formName.focus();
+    }, 120);
   }
 
   function closeFormModal() {
@@ -401,9 +431,23 @@ function initAdminApp() {
     });
   }
 
+  const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10 MB limit
+  const ALLOWED_MIME_TYPES = ["image/jpeg", "image/png", "image/webp", "image/jpg"];
+
   function handleFilesSelected(files) {
+    let hasOversized = false;
+    let hasInvalidType = false;
+
     Array.from(files).forEach(file => {
-      if (!file.type.startsWith("image/")) return;
+      const type = file.type ? file.type.toLowerCase() : "";
+      if (!ALLOWED_MIME_TYPES.includes(type) && !type.startsWith("image/")) {
+        hasInvalidType = true;
+        return;
+      }
+      if (file.size > MAX_FILE_SIZE) {
+        hasOversized = true;
+        return;
+      }
       const previewUrl = URL.createObjectURL(file);
       currentFormPhotos.push({
         url: previewUrl,
@@ -411,6 +455,14 @@ function initAdminApp() {
         isNew: true
       });
     });
+
+    if (hasInvalidType) {
+      showToast("Unsupported file skipped: JPG, PNG, and WEBP supported.", "error");
+    }
+    if (hasOversized) {
+      showToast("File exceeded 10 MB limit. Please select a smaller photo.", "error");
+    }
+
     renderPhotoPreviews();
   }
 
@@ -429,23 +481,35 @@ function initAdminApp() {
     if (!previewContainer) return;
 
     if (currentFormPhotos.length === 0) {
-      previewContainer.innerHTML = `<div style="font-size: 0.8125rem; color: var(--admin-text-muted); grid-column: 1 / -1;">No photos added yet. Upload at least one product photo.</div>`;
+      previewContainer.innerHTML = `<div style="font-size: 0.8125rem; color: var(--admin-text-muted); grid-column: 1 / -1; padding: 0.5rem 0;">No photos added yet. Upload at least one product photo (PNG, JPG, WEBP).</div>`;
       return;
     }
 
-    previewContainer.innerHTML = currentFormPhotos.map((photo, idx) => `
-      <div class="image-preview-item" title="Photo ${idx + 1}">
-        <img src="${photo.url}" alt="Preview" />
-        <button type="button" class="btn-remove-image" data-index="${idx}" title="Remove photo">&times;</button>
-      </div>
-    `).join("");
+    previewContainer.innerHTML = currentFormPhotos.map((photo, idx) => {
+      const resolvedUrl = resolveAdminImageUrl(photo.url);
+      const isCover = idx === 0;
+      return `
+        <div class="image-preview-item" title="Photo ${idx + 1}${isCover ? ' (Primary Cover Image)' : ''}">
+          <img
+            src="${resolvedUrl}"
+            alt="Preview ${idx + 1}"
+            loading="lazy"
+            onerror="this.onerror=null; this.src='${FALLBACK_IMAGE_PLACEHOLDER}'; this.parentElement.classList.add('has-load-error');"
+          />
+          ${isCover ? '<span class="preview-badge">Cover</span>' : ''}
+          <button type="button" class="btn-remove-image" data-index="${idx}" title="Remove photo" aria-label="Remove photo ${idx + 1}">&times;</button>
+        </div>
+      `;
+    }).join("");
 
     previewContainer.querySelectorAll(".btn-remove-image").forEach(btn => {
       btn.addEventListener("click", (e) => {
         e.stopPropagation();
         const idx = parseInt(btn.getAttribute("data-index"), 10);
-        currentFormPhotos.splice(idx, 1);
-        renderPhotoPreviews();
+        if (!isNaN(idx)) {
+          currentFormPhotos.splice(idx, 1);
+          renderPhotoPreviews();
+        }
       });
     });
   }
@@ -568,6 +632,136 @@ function initAdminApp() {
         showToast("Delete failed: " + err.message, "error");
       } finally {
         setLoading(btnConfirmDelete, deleteBtnText, deleteSpinner, false, "Delete Forever");
+      }
+    });
+  }
+
+  // ==========================================================
+  // KEYBOARD ACCESSIBILITY & BACKDROP CLOSING
+  // ==========================================================
+  window.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") {
+      if (formModal && formModal.classList.contains("open")) {
+        closeFormModal();
+      }
+      if (deleteModal && deleteModal.classList.contains("open")) {
+        closeDeleteModal();
+      }
+    }
+  });
+
+  if (formModal) {
+    formModal.addEventListener("click", (e) => {
+      if (e.target === formModal) closeFormModal();
+    });
+  }
+  if (deleteModal) {
+    deleteModal.addEventListener("click", (e) => {
+      if (e.target === deleteModal) closeDeleteModal();
+    });
+  }
+
+  // ==========================================================
+  // APPEARANCE SETTINGS LOGIC
+  // ==========================================================
+  const appearanceCards = document.querySelectorAll(".appearance-card");
+  const btnSaveAppearance = document.getElementById("btnSaveAppearance");
+  const themeSaveFeedback = document.getElementById("themeSaveFeedback");
+  const currentThemeBadgeText = document.getElementById("currentThemeBadgeText");
+
+  let activeThemeSetting = "system";
+
+  async function loadAppearanceSetting() {
+    let savedTheme = "system";
+    try {
+      if (window.SupabaseService && window.SupabaseService.isConfigured()) {
+        const setting = await window.SupabaseService.getSiteSetting("appearance");
+        if (setting && setting.theme) {
+          savedTheme = setting.theme;
+        } else {
+          savedTheme = localStorage.getItem("printable3d_theme") || "system";
+        }
+      } else {
+        savedTheme = localStorage.getItem("printable3d_theme") || "system";
+      }
+    } catch (e) {
+      savedTheme = localStorage.getItem("printable3d_theme") || "system";
+    }
+
+    activeThemeSetting = savedTheme;
+    updateAppearanceUi(activeThemeSetting);
+    applyThemeToDocument(activeThemeSetting);
+  }
+
+  function updateAppearanceUi(theme) {
+    appearanceCards.forEach(card => {
+      const option = card.getAttribute("data-theme-option");
+      if (option === theme) {
+        card.classList.add("selected");
+      } else {
+        card.classList.remove("selected");
+      }
+    });
+
+    if (currentThemeBadgeText) {
+      if (theme === "light") currentThemeBadgeText.textContent = "Light Mode";
+      else if (theme === "dark") currentThemeBadgeText.textContent = "Dark Mode";
+      else currentThemeBadgeText.textContent = "System Default";
+    }
+  }
+
+  function applyThemeToDocument(theme) {
+    if (theme === "system") {
+      const prefersDark = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
+      document.documentElement.setAttribute("data-theme", prefersDark ? "dark" : "light");
+    } else {
+      document.documentElement.setAttribute("data-theme", theme);
+    }
+  }
+
+  appearanceCards.forEach(card => {
+    card.addEventListener("click", () => {
+      const opt = card.getAttribute("data-theme-option");
+      if (opt) {
+        activeThemeSetting = opt;
+        updateAppearanceUi(activeThemeSetting);
+        applyThemeToDocument(activeThemeSetting);
+      }
+    });
+    card.addEventListener("keydown", (e) => {
+      if (e.key === "Enter" || e.key === " ") {
+        e.preventDefault();
+        card.click();
+      }
+    });
+  });
+
+  if (btnSaveAppearance) {
+    btnSaveAppearance.addEventListener("click", async () => {
+      btnSaveAppearance.disabled = true;
+      try {
+        localStorage.setItem("printable3d_theme", activeThemeSetting);
+        if (window.SupabaseService && window.SupabaseService.isConfigured()) {
+          await window.SupabaseService.saveSiteSetting("appearance", { theme: activeThemeSetting });
+        }
+        showToast("Appearance setting saved globally.", "success");
+        if (themeSaveFeedback) {
+          themeSaveFeedback.style.display = "inline";
+          setTimeout(() => { themeSaveFeedback.style.display = "none"; }, 3000);
+        }
+      } catch (err) {
+        showToast("Error saving appearance: " + err.message, "error");
+      } finally {
+        btnSaveAppearance.disabled = false;
+      }
+    });
+  }
+
+  // Follow device color-scheme changes if System Default is selected
+  if (window.matchMedia) {
+    window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", (e) => {
+      if (activeThemeSetting === "system") {
+        document.documentElement.setAttribute("data-theme", e.matches ? "dark" : "light");
       }
     });
   }

@@ -10,5 +10,5 @@
   <!-- Center vertical division -->
   <path d="M32 32.8V52" stroke="#F8FAFC" stroke-width="2.5"/>
   <!-- Nozzle point highlight -->
-  <circle cx="32" cy="12" r="2.5" fill="#F97316"/>
+  <circle cx="32" cy="12" r="2.5" fill="#F25F01"/>
 </svg>

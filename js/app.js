@@ -6,6 +6,7 @@
  */
 
 document.addEventListener("DOMContentLoaded", () => {
+  initThemeSystem();
   initHeader();
   initMobileDrawer();
   initGlobalConfig();
@@ -13,6 +14,71 @@ document.addEventListener("DOMContentLoaded", () => {
   initProductCardWhatsAppButtons();
   initImageFallbacks();
 });
+
+/**
+ * Website Appearance & Theme System
+ * Supports Admin global settings (Light/Dark/System Default), visitor theme toggle,
+ * and real-time OS prefers-color-scheme adaptation.
+ */
+function initThemeSystem() {
+  function getSystemPreference() {
+    return window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+  }
+
+  function resolveTheme() {
+    const userTheme = localStorage.getItem("printable3d_user_theme");
+    if (userTheme === "light" || userTheme === "dark") {
+      return userTheme;
+    }
+    const siteTheme = localStorage.getItem("printable3d_theme") || "system";
+    if (siteTheme === "system") {
+      return getSystemPreference();
+    }
+    return siteTheme;
+  }
+
+  function applyTheme(theme) {
+    document.documentElement.setAttribute("data-theme", theme);
+  }
+
+  // Initial apply
+  applyTheme(resolveTheme());
+
+  // Asynchronously sync global setting from Supabase if configured
+  if (window.SupabaseService && typeof window.SupabaseService.isConfigured === "function" && window.SupabaseService.isConfigured()) {
+    window.SupabaseService.getSiteSetting("appearance").then(setting => {
+      if (setting && setting.theme) {
+        localStorage.setItem("printable3d_theme", setting.theme);
+        // Only override if user hasn't personally clicked the toggle
+        if (!localStorage.getItem("printable3d_user_theme")) {
+          applyTheme(setting.theme === "system" ? getSystemPreference() : setting.theme);
+        }
+      }
+    }).catch(() => {});
+  }
+
+  // Bind theme toggle buttons
+  const toggleButtons = document.querySelectorAll(".js-theme-toggle");
+  toggleButtons.forEach(btn => {
+    btn.addEventListener("click", () => {
+      const currentTheme = document.documentElement.getAttribute("data-theme") || "light";
+      const nextTheme = currentTheme === "dark" ? "light" : "dark";
+      localStorage.setItem("printable3d_user_theme", nextTheme);
+      applyTheme(nextTheme);
+    });
+  });
+
+  // Listen to OS prefers-color-scheme changes
+  if (window.matchMedia) {
+    window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", (e) => {
+      const userTheme = localStorage.getItem("printable3d_user_theme");
+      const siteTheme = localStorage.getItem("printable3d_theme") || "system";
+      if (!userTheme && siteTheme === "system") {
+        applyTheme(e.matches ? "dark" : "light");
+      }
+    });
+  }
+}
 
 /**
  * Dynamically populates published products on the Homepage
@@ -55,10 +121,11 @@ async function initHomePageProducts() {
           <div class="product-content">
             <div class="product-cat">${product.categoryName}</div>
             <h3 class="product-title"><a href="${detailUrl}">${product.name}</a></h3>
+            ${(product.reviewsCount && product.reviewsCount > 0) ? `
             <div class="product-rating">
               <span class="rating-stars"><svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></span>
               <span><strong>${product.rating.toFixed(1)}</strong> (${product.reviewsCount})</span>
-            </div>
+            </div>` : ""}
             <p class="product-desc-short">${product.shortDescription || ''}</p>
             <div class="product-price-row">
               <span class="product-price">${STORE_CONFIG.currency.symbol}${product.price}</span>
@@ -198,10 +265,12 @@ function initProductCardWhatsAppButtons() {
   const cards = document.querySelectorAll(".product-card[data-product-id]");
   cards.forEach((card) => {
     const productId = card.getAttribute("data-product-id");
-    const product = ProductService.getById(productId);
+    // Use the synchronous method - static cards already have product data embedded;
+    // this just updates the href for any cards that may have a placeholder '#' href
+    const product = ProductService.getByIdSync(productId, false);
     const waBtn = card.querySelector(".btn-card-whatsapp");
 
-    if (product && waBtn) {
+    if (product && waBtn && waBtn.getAttribute("href") === "#") {
       const orderUrl = STORE_CONFIG.getWhatsAppOrderUrl({
         productName: product.name,
         price: product.price,
