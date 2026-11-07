@@ -435,7 +435,12 @@
           contentType: contentType
         });
 
-      if (error) throw error;
+      if (error) {
+        if (error.statusCode === "404" || error.code === "NoSuchBucket" || (error.message && error.message.toLowerCase().includes("bucket not found"))) {
+          throw new Error(`Storage bucket '${bucket}' not found. Please create a public bucket named '${bucket}' in Supabase Dashboard (Storage -> New bucket) or execute supabase/create_storage_bucket.sql in the SQL Editor.`);
+        }
+        throw error;
+      }
 
       // Get public URL
       const { data: publicUrlData } = client.storage

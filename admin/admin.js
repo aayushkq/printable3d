@@ -88,8 +88,7 @@ function initAdminApp() {
 
   /**
    * Resolves relative image paths properly from within the /admin subdirectory.
-   * If a path is "images/products/...", it must be reached via "../images/products/..."
-   * or absolute URL so preview rendering does not 404.
+   * Root-relative or absolute URLs ensure preview rendering never 404s.
    */
   function resolveAdminImageUrl(url) {
     if (!url) return FALLBACK_IMAGE_PLACEHOLDER;
@@ -99,7 +98,7 @@ function initAdminApp() {
     if (url.startsWith("/")) {
       return url;
     }
-    return "../" + url;
+    return "/" + url;
   }
 
   // Check Supabase configuration notice
@@ -248,7 +247,7 @@ function initAdminApp() {
       const thumb = resolveAdminImageUrl(rawThumb);
       const statusClass = product.status === "available" ? "status-available" : product.status === "draft" ? "status-draft" : "status-unavailable";
       const statusText = product.status === "available" ? "Available" : product.status === "draft" ? "Draft" : "Unavailable";
-      const liveUrl = `../product.html?id=${encodeURIComponent(product.slug || product.id)}`;
+      const liveUrl = `/product.html?id=${encodeURIComponent(product.slug || product.id)}`;
 
       return `
         <tr>
@@ -556,6 +555,10 @@ function initAdminApp() {
             const uploadedUrl = await window.SupabaseService.uploadProductImage(photo.file, slug);
             finalImages.push(uploadedUrl);
           } else {
+            // Guard against persisting ephemeral blob URLs
+            if (photo.url && photo.url.startsWith("blob:")) {
+              throw new Error("Unable to upload image file to storage. Please ensure the Supabase 'product-images' bucket exists and is public.");
+            }
             finalImages.push(photo.url);
           }
         }

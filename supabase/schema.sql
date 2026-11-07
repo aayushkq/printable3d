@@ -164,9 +164,18 @@ on conflict (key) do nothing;
 
 
 -- 5. Supabase Storage Setup: 'product-images' bucket
-insert into storage.buckets (id, name, public)
-values ('product-images', 'product-images', true)
-on conflict (id) do update set public = true;
+insert into storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
+values (
+  'product-images',
+  'product-images',
+  true,
+  10485760,
+  array['image/jpeg', 'image/png', 'image/webp', 'image/jpg']
+)
+on conflict (id) do update set
+  public = true,
+  file_size_limit = 10485760,
+  allowed_mime_types = array['image/jpeg', 'image/png', 'image/webp', 'image/jpg'];
 
 -- Storage RLS Policies
 drop policy if exists "Public read product images" on storage.objects;
