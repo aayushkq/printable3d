@@ -113,9 +113,9 @@ printable3d/
 #### 4. Pre-Configured `js/config.js`
 Your project credentials and contact information are already connected in [js/config.js](file:///c:/Users/Lenovo/Desktop/page%20work/printable3d/js/config.js):
 ```javascript
-whatsappNumber: "918825247784",
-whatsappDisplayNumber: "+91 88252 47784",
-email: "printable3d.store@gmail.com",
+whatsappNumber: "917488535416",
+whatsappDisplayNumber: "+91 74885 35416",
+email: "contact@printable3d.store",
 supabaseUrl: "https://dquvwlccuwzrrdhetuwz.supabase.co",
 supabaseAnonKey: "sb_publishable_clMFy-Vp3NowghS3c38pXw_cIzWlTIp",
 ```
