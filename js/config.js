@@ -16,8 +16,8 @@ const STORE_CONFIG = {
   // 1. CONFIGURE YOUR WHATSAPP NUMBER HERE
   // Format: '91' + your 10 digit number without '+' or spaces.
   // ============================================================
-  whatsappNumber: "918825247784",
-  whatsappDisplayNumber: "+91 88252 47784",
+  whatsappNumber: "917488535416",
+  whatsappDisplayNumber: "+91 74885 35416",
 
   // ============================================================
   // 2. SUPABASE BACKEND CONFIGURATION
@@ -35,7 +35,7 @@ const STORE_CONFIG = {
   supabaseStorageBucket: "product-images",
 
   // Contact & Social channels
-  email: "printable3d.store@gmail.com",
+  email: "contact@printable3d.store",
   instagramUrl: "https://instagram.com/printable3d.store",
   instagramHandle: "@printable3d.store",
   location: "Made & Shipped across India",
