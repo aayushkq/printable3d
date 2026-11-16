@@ -47,7 +47,7 @@
       </div>
 
       <!-- Config Notice if Supabase is not yet configured -->
-      <div id="configNoticeBox" style="display: none; background-color: #FEF3C7; border: 1px solid #F59E0B; border-radius: var(--radius-sm); padding: 0.85rem; font-size: 0.8125rem; color: #92400E; margin-bottom: 1.5rem;">
+      <div id="configNoticeBox" class="config-notice-box" style="display: none;">
         <strong>Supabase Credentials Needed:</strong> Please set your Supabase Project URL and Anon Key in <code>js/config.js</code>. Run <code>supabase/schema.sql</code> in your Supabase SQL editor to create the database tables.
       </div>
 
@@ -79,7 +79,7 @@
 
         <button type="submit" class="btn btn-primary" id="btnAdminLogin" style="width: 100%; padding: 0.8rem;">
           <span id="loginBtnText">Sign In to Dashboard</span>
-          <div id="loginSpinner" style="display: none; width: 18px; height: 18px; border: 2px solid #FFFFFF; border-top-color: transparent; border-radius: 50%; animation: spin 0.8s linear infinite;"></div>
+          <div id="loginSpinner" style="display: none; width: 18px; height: 18px; border: 2px solid currentColor; border-top-color: transparent; border-radius: 50%; animation: spin 0.8s linear infinite;"></div>
         </button>
       </form>
 
@@ -440,7 +440,7 @@
           <button type="button" class="btn btn-secondary" id="btnCancelModal">Cancel</button>
           <button type="submit" class="btn btn-primary" id="btnSaveProduct">
             <span id="saveBtnText">Save Product</span>
-            <div id="saveSpinner" style="display: none; width: 16px; height: 16px; border: 2px solid #FFFFFF; border-top-color: transparent; border-radius: 50%; animation: spin 0.8s linear infinite;"></div>
+            <div id="saveSpinner" style="display: none; width: 16px; height: 16px; border: 2px solid currentColor; border-top-color: transparent; border-radius: 50%; animation: spin 0.8s linear infinite;"></div>
           </button>
         </div>
       </form>
@@ -474,7 +474,7 @@
         <button type="button" class="btn btn-secondary" id="btnCancelDelete">Cancel</button>
         <button type="button" class="btn btn-danger" id="btnConfirmDelete">
           <span id="deleteBtnText">Delete Forever</span>
-          <div id="deleteSpinner" style="display: none; width: 16px; height: 16px; border: 2px solid #FFFFFF; border-top-color: transparent; border-radius: 50%; animation: spin 0.8s linear infinite;"></div>
+          <div id="deleteSpinner" style="display: none; width: 16px; height: 16px; border: 2px solid currentColor; border-top-color: transparent; border-radius: 50%; animation: spin 0.8s linear infinite;"></div>
         </button>
       </div>
     </div>

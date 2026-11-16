@@ -34,12 +34,12 @@ async function initProductDetailPage() {
   const specsTableBody = document.getElementById("detailSpecsBody");
   const relatedGrid = document.getElementById("relatedProductsGrid");
 
-  // Fetch product dynamically
+  // Fetch product dynamically from Supabase (or the existing local fallback).
   let product = null;
   try {
-    product = await ProductService.getById(productId || "3d-printed-lamp");
+    product = productId ? await ProductService.getById(productId) : null;
   } catch (e) {
-    product = ProductService.getByIdSync(productId || "3d-printed-lamp");
+    product = productId ? ProductService.getByIdSync(productId) : null;
   }
 
   // If still not found or draft
@@ -52,15 +52,15 @@ async function initProductDetailPage() {
           <p style="color: var(--text-secondary); margin-bottom: 1.5rem;">
             This product is either currently in draft stage or no longer available in our public catalogue.
           </p>
-          <a href="shop.html" class="btn btn-primary">Browse Available Products</a>
+          <a href="/shop" class="btn btn-primary">Browse Available Products</a>
         </div>
       `;
     }
     return;
   }
 
-  // Set page meta title dynamically
-  document.title = `${product.name} | Printable3D`;
+  // Keep the page metadata aligned with the live product record.
+  updateProductSeo(product);
 
   // State
   let selectedColor = product.colors && product.colors.length > 0 ? product.colors[0].name : "Standard";
@@ -69,7 +69,7 @@ async function initProductDetailPage() {
   // Populate Breadcrumbs
   if (breadcrumbCategory) {
     breadcrumbCategory.textContent = product.categoryName;
-    breadcrumbCategory.href = `shop.html?category=${encodeURIComponent(product.category)}`;
+    breadcrumbCategory.href = `/shop?category=${encodeURIComponent(product.category)}`;
   }
   if (breadcrumbTitle) {
     breadcrumbTitle.textContent = product.name;
@@ -106,7 +106,7 @@ async function initProductDetailPage() {
     if (!shippingNoteEl) {
       shippingNoteEl = document.createElement("div");
       shippingNoteEl.id = "detailShippingInfo";
-      shippingNoteEl.style.cssText = "font-size: 0.8125rem; color: #B45309; background: #FEF3C7; padding: 0.25rem 0.65rem; border-radius: var(--radius-full); font-weight: 600; display: inline-flex; align-items: center; gap: 0.35rem;";
+      shippingNoteEl.className = "product-shipping-note";
       priceBox.appendChild(shippingNoteEl);
     }
     shippingNoteEl.innerHTML = `
@@ -302,7 +302,7 @@ async function initProductDetailPage() {
       `;
     } else {
       relatedGrid.innerHTML = related.map(relProduct => {
-        const relUrl = `product.html?id=${encodeURIComponent(relProduct.slug || relProduct.id)}`;
+        const relUrl = `/product?id=${encodeURIComponent(relProduct.slug || relProduct.id)}`;
         const relWaUrl = STORE_CONFIG.getWhatsAppOrderUrl({
           productName: relProduct.name,
           price: relProduct.price,
@@ -345,4 +345,53 @@ async function initProductDetailPage() {
       }).join("");
     }
   }
+}
+
+function updateProductSeo(product) {
+  const title = `${product.name} | Printable3D`;
+  const description = product.shortDescription || product.fullDescription || product.name;
+  const productId = product.slug || product.id;
+  const siteUrl = (STORE_CONFIG.websiteUrl || window.location.origin).replace(/\/$/, "");
+  const canonicalUrl = `${siteUrl}/product?id=${encodeURIComponent(productId)}`;
+
+  document.title = title;
+  const descriptionTag = document.querySelector('meta[name="description"]');
+  if (descriptionTag) descriptionTag.setAttribute("content", description);
+
+  let canonicalTag = document.querySelector('link[rel="canonical"]');
+  if (!canonicalTag) {
+    canonicalTag = document.createElement("link");
+    canonicalTag.setAttribute("rel", "canonical");
+    document.head.appendChild(canonicalTag);
+  }
+  canonicalTag.setAttribute("href", canonicalUrl);
+
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Product",
+    name: product.name,
+    brand: { "@type": "Brand", name: "Printable3D" }
+  };
+  if (product.fullDescription || description) jsonLd.description = product.fullDescription || description;
+  const images = Array.isArray(product.images) ? product.images.filter(Boolean) : [];
+  if (images.length) {
+    jsonLd.image = images.map(image => new URL(image, `${siteUrl}/`).href);
+  }
+  const price = Number(product.price);
+  if (Number.isFinite(price) && price > 0) {
+    jsonLd.offers = {
+      "@type": "Offer",
+      url: canonicalUrl,
+      price: String(price),
+      priceCurrency: STORE_CONFIG.currency.code || "INR"
+    };
+  }
+  let jsonLdTag = document.getElementById("productJsonLd");
+  if (!jsonLdTag) {
+    jsonLdTag = document.createElement("script");
+    jsonLdTag.id = "productJsonLd";
+    jsonLdTag.type = "application/ld+json";
+    document.head.appendChild(jsonLdTag);
+  }
+  jsonLdTag.textContent = JSON.stringify(jsonLd).replace(/</g, "\\u003c");
 }
