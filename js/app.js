@@ -5,6 +5,28 @@
  * toast alerts, and dynamic config population.
  */
 
+// Keep product links embedded in WhatsApp order messages on the canonical route
+// without changing the shared configuration module.
+if (window.STORE_CONFIG && typeof STORE_CONFIG.getWhatsAppOrderUrl === "function") {
+  const getConfiguredOrderUrl = STORE_CONFIG.getWhatsAppOrderUrl.bind(STORE_CONFIG);
+  STORE_CONFIG.getWhatsAppOrderUrl = function (options) {
+    const orderUrl = getConfiguredOrderUrl(options);
+    try {
+      const parsedUrl = new URL(orderUrl, window.location.href);
+      const message = parsedUrl.searchParams.get("text");
+      if (message) {
+        parsedUrl.searchParams.set(
+          "text",
+          message.replace(/(https?:\/\/[^/\s]+)\/product\.html\?id=/g, "$1/product?id=")
+        );
+      }
+      return parsedUrl.toString();
+    } catch {
+      return orderUrl;
+    }
+  };
+}
+
 document.addEventListener("DOMContentLoaded", () => {
   initThemeSystem();
   initHeader();
@@ -93,7 +115,7 @@ async function initHomePageProducts() {
 
     // Render cards for all published products (e.g. Lamp and Phone Stand)
     featuredContainer.innerHTML = published.map(product => {
-      const detailUrl = `product.html?id=${encodeURIComponent(product.slug || product.id)}`;
+      const detailUrl = `/product?id=${encodeURIComponent(product.slug || product.id)}`;
       const whatsAppUrl = STORE_CONFIG.getWhatsAppOrderUrl({
         productName: product.name,
         price: product.price,

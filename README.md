@@ -113,9 +113,9 @@ printable3d/
 #### 4. Pre-Configured `js/config.js`
 Your project credentials and contact information are already connected in [js/config.js](file:///c:/Users/Lenovo/Desktop/page%20work/printable3d/js/config.js):
 ```javascript
-whatsappNumber: "918825247784",
-whatsappDisplayNumber: "+91 88252 47784",
-email: "printable3d.store@gmail.com",
+whatsappNumber: "917488535416",
+whatsappDisplayNumber: "+91 74885 35416",
+email: "contact@printable3d.store",
 supabaseUrl: "https://dquvwlccuwzrrdhetuwz.supabase.co",
 supabaseAnonKey: "sb_publishable_clMFy-Vp3NowghS3c38pXw_cIzWlTIp",
 ```
@@ -163,35 +163,28 @@ When a visitor clicks **Order via WhatsApp** or **Buy Now via WhatsApp**:
 
 ---
 
-## 🚀 Deployment to Cloudflare Pages
+## 🚀 Deployment to Cloudflare Workers
 
-This website is completely self-contained with standard HTML5, CSS3, and JavaScript.
+This project is deployed as a **Cloudflare Worker with Static Assets**. `worker.js` handles `/product?id=...` server-side and uses the `ASSETS` binding for the product template and all other static files. It does not use Cloudflare Pages Functions.
 
-### Method 1: Cloudflare Pages Direct Upload (Drag & Drop)
-1. Go to [dash.cloudflare.com](https://dash.cloudflare.com/) > **Workers & Pages** > **Create application** > **Pages** > **Upload assets**.
-2. Project name: `printable3d`.
-3. Drag and drop the `printable3d` folder (including `admin/`, `assets/`, `css/`, `images/`, `js/`, and `.html` files).
-4. Click **Deploy Site**.
-5. Go to **Custom domains** > Add `printable3d.store`.
+### Deploy with Wrangler
 
-### Method 2: Git Repository (Continuous Deployment)
-1. Push this folder to GitHub or GitLab:
+1. Install Node.js and Wrangler if they are not already available:
    ```bash
-   git init
-   git add .
-   git commit -m "Initial Printable3D store and admin console"
-   git remote add origin https://github.com/your-username/printable3d.git
-   git push -u origin main
+   npm install --save-dev wrangler
    ```
-2. In Cloudflare Pages, click **Connect to Git** and choose the repository.
-3. Build Settings:
-   - Framework preset: `None`
-   - Build command: *(leave empty)*
-   - Build output directory: `/` (root)
-4. Click **Save and Deploy**. Cloudflare automatically rebuilds on every git push.
+2. From the project root, authenticate with Cloudflare:
+   ```bash
+   npx wrangler login
+   ```
+3. Confirm `wrangler.toml` has `main = "worker.js"` and `[assets]` has `directory = "."`, `binding = "ASSETS"`, and `run_worker_first = true`.
+4. Deploy the Worker and static assets:
+   ```bash
+   npx wrangler deploy
+   ```
+5. Attach or confirm `printable3d.store` under the Worker’s **Settings > Domains & Routes**. The existing public Supabase configuration is used for product lookups; no database or storage service changes are needed.
 
----
-
+`wrangler deploy` publishes the Worker and the directory configured under `[assets]`. Do not configure this project as a Pages project. Static routes such as `/shop`, `/admin`, stylesheets, scripts, and product images continue to be served through the `ASSETS` binding.
 ## 🧪 Local Testing & Verification
 
 To preview the store locally with Python's built-in web server:

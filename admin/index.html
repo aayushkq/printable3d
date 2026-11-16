@@ -7,7 +7,9 @@
   <meta name="robots" content="noindex, nofollow" />
 
   <!-- Favicon -->
+  <link rel="icon" type="image/png" href="/assets/printable3d-orange-ring-logo.png" />
   <link rel="icon" type="image/svg+xml" href="/assets/favicon.svg" />
+  <link rel="apple-touch-icon" href="/assets/printable3d-orange-ring-logo.png" />
 
   <!-- Admin Stylesheet -->
   <link rel="stylesheet" href="/css/admin.css" />
@@ -36,18 +38,14 @@
     <div class="login-card">
       <div class="login-header">
         <div class="login-brand-icon">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
-            <polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline>
-            <line x1="12" y1="22.08" x2="12" y2="12"></line>
-          </svg>
+          <img src="/assets/printable3d-orange-ring-logo.png" alt="Printable3D Orange Ring Logo" />
         </div>
         <h1 class="login-title">Printable<span style="color: var(--admin-orange);">3D</span> Console</h1>
         <p class="login-subtitle">Sign in to manage products, pricing, and photos</p>
       </div>
 
       <!-- Config Notice if Supabase is not yet configured -->
-      <div id="configNoticeBox" style="display: none; background-color: #FEF3C7; border: 1px solid #F59E0B; border-radius: var(--radius-sm); padding: 0.85rem; font-size: 0.8125rem; color: #92400E; margin-bottom: 1.5rem;">
+      <div id="configNoticeBox" class="config-notice-box" style="display: none;">
         <strong>Supabase Credentials Needed:</strong> Please set your Supabase Project URL and Anon Key in <code>js/config.js</code>. Run <code>supabase/schema.sql</code> in your Supabase SQL editor to create the database tables.
       </div>
 
@@ -79,7 +77,7 @@
 
         <button type="submit" class="btn btn-primary" id="btnAdminLogin" style="width: 100%; padding: 0.8rem;">
           <span id="loginBtnText">Sign In to Dashboard</span>
-          <div id="loginSpinner" style="display: none; width: 18px; height: 18px; border: 2px solid #FFFFFF; border-top-color: transparent; border-radius: 50%; animation: spin 0.8s linear infinite;"></div>
+          <div id="loginSpinner" style="display: none; width: 18px; height: 18px; border: 2px solid currentColor; border-top-color: transparent; border-radius: 50%; animation: spin 0.8s linear infinite;"></div>
         </button>
       </form>
 
@@ -99,9 +97,7 @@
     <!-- Navbar -->
     <header class="admin-navbar">
       <div class="admin-nav-brand">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
-        </svg>
+        <img src="/assets/printable3d-orange-ring-logo.png" alt="Printable3D Orange Ring Logo" />
         <span>Printable<span style="color: var(--admin-orange);">3D</span> Admin</span>
       </div>
 
@@ -440,7 +436,7 @@
           <button type="button" class="btn btn-secondary" id="btnCancelModal">Cancel</button>
           <button type="submit" class="btn btn-primary" id="btnSaveProduct">
             <span id="saveBtnText">Save Product</span>
-            <div id="saveSpinner" style="display: none; width: 16px; height: 16px; border: 2px solid #FFFFFF; border-top-color: transparent; border-radius: 50%; animation: spin 0.8s linear infinite;"></div>
+            <div id="saveSpinner" style="display: none; width: 16px; height: 16px; border: 2px solid currentColor; border-top-color: transparent; border-radius: 50%; animation: spin 0.8s linear infinite;"></div>
           </button>
         </div>
       </form>
@@ -474,7 +470,7 @@
         <button type="button" class="btn btn-secondary" id="btnCancelDelete">Cancel</button>
         <button type="button" class="btn btn-danger" id="btnConfirmDelete">
           <span id="deleteBtnText">Delete Forever</span>
-          <div id="deleteSpinner" style="display: none; width: 16px; height: 16px; border: 2px solid #FFFFFF; border-top-color: transparent; border-radius: 50%; animation: spin 0.8s linear infinite;"></div>
+          <div id="deleteSpinner" style="display: none; width: 16px; height: 16px; border: 2px solid currentColor; border-top-color: transparent; border-radius: 50%; animation: spin 0.8s linear infinite;"></div>
         </button>
       </div>
     </div>

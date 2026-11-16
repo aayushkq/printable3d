@@ -6,6 +6,9 @@
 @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap');
 
 :root {
+  /* Color Scheme Native Hint */
+  color-scheme: light;
+
   /* Printable3D Brand Identity Colors */
   --admin-orange: #F25F01;
   --admin-orange-secondary: #F68B22;
@@ -23,6 +26,7 @@
   --admin-text-main: #0F172A;
   --admin-text-muted: #64748B;
   --admin-text-light: #94A3B8;
+  --admin-text-inverse: #FFFFFF;
 
   --admin-primary: #1E1E1D;
   --admin-primary-hover: #2E2E2D;
@@ -42,6 +46,8 @@
 
 /* Admin Dark Theme Definition */
 html[data-theme="dark"] {
+  color-scheme: dark;
+
   --admin-bg: #141413;
   --admin-surface: #1E1E1D;
   --admin-sidebar: #121212;
@@ -51,6 +57,7 @@ html[data-theme="dark"] {
   --admin-text-main: #FFFFFF;
   --admin-text-muted: #A1A1AA;
   --admin-text-light: #71717A;
+  --admin-text-inverse: #121212;
 
   --admin-primary: #FFFFFF;
   --admin-primary-hover: #E4E4E7;
@@ -63,6 +70,8 @@ html[data-theme="dark"] {
 @media (prefers-color-scheme: dark) {
   html:not([data-theme="light"]):not([data-theme="dark"]),
   html[data-theme-setting="system"][data-theme="dark"] {
+    color-scheme: dark;
+
     --admin-bg: #141413;
     --admin-surface: #1E1E1D;
     --admin-sidebar: #121212;
@@ -72,6 +81,7 @@ html[data-theme="dark"] {
     --admin-text-main: #FFFFFF;
     --admin-text-muted: #A1A1AA;
     --admin-text-light: #71717A;
+    --admin-text-inverse: #121212;
 
     --admin-primary: #FFFFFF;
     --admin-primary-hover: #E4E4E7;
@@ -142,15 +152,35 @@ button {
 }
 
 .login-brand-icon {
-  width: 48px;
-  height: 48px;
-  background-color: var(--admin-primary);
-  color: #FFFFFF;
-  border-radius: 12px;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  overflow: hidden;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   margin-bottom: 1rem;
+  background-color: #000000;
+  border: 1.5px solid rgba(242, 95, 1, 0.5);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.login-brand-icon img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  border-radius: 50%;
+  display: block;
+}
+
+.admin-nav-brand img {
+  width: 28px;
+  height: 28px;
+  object-fit: contain;
+  border-radius: 50%;
+  margin-right: 0.5rem;
+  border: 1px solid rgba(242, 95, 1, 0.5);
+  vertical-align: middle;
 }
 
 .login-title {
@@ -450,6 +480,21 @@ button {
   color: #64748B;
 }
 
+html[data-theme="dark"] .status-available {
+  background-color: rgba(16, 185, 129, 0.2);
+  color: #34D399;
+}
+
+html[data-theme="dark"] .status-draft {
+  background-color: rgba(245, 158, 11, 0.2);
+  color: #FCD34D;
+}
+
+html[data-theme="dark"] .status-unavailable {
+  background-color: rgba(255, 255, 255, 0.1);
+  color: #A1A1AA;
+}
+
 /* Actions */
 .row-actions {
   display: flex;
@@ -465,7 +510,7 @@ button {
   justify-content: center;
   border-radius: var(--radius-sm);
   border: 1px solid var(--admin-border);
-  background-color: #FFFFFF;
+  background-color: var(--admin-surface);
   color: var(--admin-text-main);
   transition: all 0.15s ease;
 }
@@ -479,6 +524,12 @@ button {
   background-color: #FEE2E2;
   border-color: #EF4444;
   color: #DC2626;
+}
+
+html[data-theme="dark"] .btn-action-delete:hover {
+  background-color: rgba(239, 68, 68, 0.2);
+  border-color: #EF4444;
+  color: #F87171;
 }
 
 /* Common Buttons */
@@ -497,7 +548,7 @@ button {
 
 .btn-primary {
   background-color: var(--admin-primary);
-  color: #FFFFFF;
+  color: var(--admin-text-inverse, #FFFFFF);
 }
 
 .btn-primary:hover {
@@ -526,6 +577,22 @@ button {
 .btn-sm {
   padding: 0.45rem 0.85rem;
   font-size: 0.8125rem;
+}
+
+.config-notice-box {
+  background-color: #FEF3C7;
+  border: 1px solid #F59E0B;
+  border-radius: var(--radius-sm);
+  padding: 0.85rem;
+  font-size: 0.8125rem;
+  color: #92400E;
+  margin-bottom: 1.5rem;
+}
+
+html[data-theme="dark"] .config-notice-box {
+  background-color: rgba(245, 158, 11, 0.15);
+  border-color: rgba(245, 158, 11, 0.4);
+  color: #FCD34D;
 }
 
 /* --- Form Fields & Modals --- */
@@ -666,6 +733,11 @@ button {
   background-color: var(--admin-surface);
   border-color: var(--admin-orange);
   box-shadow: 0 0 0 3px rgba(242, 95, 1, 0.12);
+}
+
+html[data-theme="dark"] select option {
+  background-color: var(--admin-surface);
+  color: var(--admin-text-main);
 }
 
 .form-textarea {

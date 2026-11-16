@@ -151,7 +151,7 @@ async function initShopPage() {
 
   // Create Product Card HTML
   function createProductCardHtml(product) {
-    const detailUrl = `product.html?id=${encodeURIComponent(product.slug || product.id)}`;
+    const detailUrl = `/product?id=${encodeURIComponent(product.slug || product.id)}`;
     const whatsAppUrl = STORE_CONFIG.getWhatsAppOrderUrl({
       productName: product.name,
       price: product.price,
